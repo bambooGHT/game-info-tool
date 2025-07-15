@@ -180,7 +180,9 @@ class TwoDFanCrawler(AsyncBaseCrawler[GameInfo]):
 
         return Success(results)
 
-    async def parse_detail_page(self, content: str, url: str) -> Dict[str, Any]:
+    async def parse_detail_page(
+        self, content: str, url: str
+    ) -> Result[Dict[str, Any], str]:
         """解析详情页面
 
         Args:
@@ -188,9 +190,8 @@ class TwoDFanCrawler(AsyncBaseCrawler[GameInfo]):
             url: 页面URL
 
         Returns:
-            Dict[str, Any]: 解析后的详情数据
+            Result[Dict[str, Any], str]: 解析后的详情数据
         """
-        # 这里只是一个示例实现，实际解析逻辑需要根据2dfan的HTML结构调整
         game_data = {
             "name": "",
             "translateName": None,
@@ -207,51 +208,82 @@ class TwoDFanCrawler(AsyncBaseCrawler[GameInfo]):
         try:
             soup = BeautifulSoup(content, "html.parser")
 
-            # 游戏名称
-            name_elem = soup.select_one(".game-name")  # 替换为实际的CSS选择器
-            if name_elem:
-                game_data["name"] = name_elem.text.strip()
+            # 游戏名称 - 从页面标题获取
+            title_elem = soup.select_one("title")
+            if title_elem:
+                title_text = title_elem.text.strip()
+                # 从标题中提取游戏名称，格式如："戦女神VERITA_战女神VERITA_2DFan"
+                if "_" in title_text:
+                    game_data["name"] = title_text.split("_")[0].strip()
 
-            # 译名
-            translate_name_elem = soup.select_one(
-                ".translate-name"
-            )  # 替换为实际的CSS选择器
-            if translate_name_elem:
-                game_data["translateName"] = translate_name_elem.text.strip()
+            # 解析游戏信息标签
+            tag_elements = soup.select("p.tags")
 
-            # 封面图
-            image_elem = soup.select_one(".game-cover img")  # 替换为实际的CSS选择器
+            for tag_elem in tag_elements:
+                text = tag_elem.get_text()
+
+                # 又名（中文名）
+                if "又名：" in text:
+                    translate_span = tag_elem.select_one("span.muted")
+                    if translate_span:
+                        game_data["translateName"] = translate_span.text.strip()
+
+                # 品牌
+                elif "品牌：" in text:
+                    brand_link = tag_elem.select_one("a")
+                    if brand_link:
+                        game_data["brand"] = brand_link.text.strip()
+
+                # 发售日期
+                elif "发售日期：" in text:
+                    # 提取日期，格式如："发售日期：2010-04-23"
+                    date_text = (
+                        text.replace("品牌：", "").replace("发售日期：", "").strip()
+                    )
+                    # 使用正则表达式提取日期
+                    import re
+
+                    date_match = re.search(r"\d{4}-\d{2}-\d{2}", date_text)
+                    if date_match:
+                        game_data["releaseDate"] = date_match.group()
+
+            # 游戏标签 - 从侧边栏的常用标签区域获取
+            tags_section = soup.select_one("#sidebar .block-content.tags")
+            if tags_section:
+                tag_links = tags_section.select("a.label.label-info")
+                for link in tag_links:
+                    tag_name = link.text.strip()
+                    if tag_name:
+                        game_data["gameTags"].append(tag_name)
+
+            # 封面图 - 查找游戏封面
+            image_elem = soup.select_one(
+                "img[src*='subjects'], img[src*='uploads/subjects']"
+            )
             if image_elem and "src" in image_elem.attrs:
-                game_data["image"] = image_elem["src"]
+                src = image_elem["src"]
+                if src.startswith("//"):
+                    src = "https:" + src
+                elif src.startswith("/"):
+                    src = "https://img.achost.top" + src
+                game_data["image"] = src
 
-            # 品牌
-            brand_elem = soup.select_one(".brand")  # 替换为实际的CSS选择器
-            if brand_elem:
-                game_data["brand"] = brand_elem.text.strip()
-
-            # 发售日期
-            date_elem = soup.select_one(".release-date")  # 替换为实际的CSS选择器
-            if date_elem:
-                game_data["releaseDate"] = date_elem.text.strip()
-
-            # 平台
-            platform_elems = soup.select(".platform")  # 替换为实际的CSS选择器
-            game_data["platform"] = [elem.text.strip() for elem in platform_elems]
-
-            # 游戏标签
-            game_tag_elems = soup.select(".game-tag")  # 替换为实际的CSS选择器
-            game_data["gameTags"] = [elem.text.strip() for elem in game_tag_elems]
-
-            # 成人标签
-            porn_tag_elems = soup.select(".porn-tag")  # 替换为实际的CSS选择器
-            game_data["pornTags"] = [elem.text.strip() for elem in porn_tag_elems]
-
-            # 游戏介绍
-            intro_elem = soup.select_one(".introduction")  # 替换为实际的CSS选择器
+            # 游戏介绍 - 从blockquote中获取
+            intro_elem = soup.select_one("blockquote p")
             if intro_elem:
-                game_data["introduction"] = intro_elem.text.strip()
+                # 获取所有p标签的文本内容
+                intro_paragraphs = soup.select("blockquote p")
+                intro_texts = []
+                for p in intro_paragraphs:
+                    text = p.get_text().strip()
+                    if text and len(text) > 10:  # 过滤掉太短的文本
+                        intro_texts.append(text)
+
+                if intro_texts:
+                    game_data["introduction"] = "\n".join(intro_texts)
 
         except Exception as e:
             logger.error(f"Error parsing detail page: {e}")
+            return Failure(str(e))
 
-        return game_data
+        return Success(game_data)

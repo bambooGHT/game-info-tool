@@ -260,7 +260,9 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def parse_detail_page(self, content: str, url: str) -> Dict[str, Any]:
+    async def parse_detail_page(
+        self, content: str, url: str
+    ) -> Result[Dict[str, Any], str]:
         """解析详情页面
 
         Args:
@@ -268,6 +270,6 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
             url: 页面URL
 
         Returns:
-            Dict[str, Any]: 解析后的详情数据
+            Result[Dict[str, Any], str]: 解析后的详情数据
         """
         pass
