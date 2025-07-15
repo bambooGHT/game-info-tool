@@ -10,14 +10,19 @@ from app.services.base import AsyncBaseCrawler, GameInfo
 class TwoDFanCrawler(AsyncBaseCrawler[GameInfo]):
     """2dfan网站爬虫实现"""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """初始化2dfan爬虫"""
+        timeout = kwargs.get("timeout", 30)
+        max_retries = kwargs.get("max_retries", 3)
+        request_delay = kwargs.get("request_delay", (2.0, 5.0))
+        respect_robots_txt = kwargs.get("respect_robots_txt", True)
+
         super().__init__(
             base_url="https://2dfan.com",
-            timeout=30,
-            max_retries=3,
-            request_delay=(2.0, 5.0),  # 更长的延迟以避免被封
-            respect_robots_txt=True,
+            timeout=timeout,
+            max_retries=max_retries,
+            request_delay=request_delay,
+            respect_robots_txt=respect_robots_txt,
         )
 
     async def search(self, query: str, **kwargs) -> List[GameInfo]:

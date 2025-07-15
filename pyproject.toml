@@ -30,3 +30,8 @@ plugins = ["returns.contrib.mypy.returns_plugin"]
 
 [tool.setuptools_scm]
 version_file = "app/_version.py"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v"
