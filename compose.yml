@@ -1,0 +1,21 @@
+services:
+  app:
+    container_name: qyg-api
+    image: qyg-api:0.1.0
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 8002:8000
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./app:/app/app
+      - ./data:/app/data
+    command: [
+      "uv", "run", "fastapi",
+      "run", "app/main.py",
+      "--port", "8000",
+      "--workers", "1",
+    ]
+
