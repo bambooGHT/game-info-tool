@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from loguru import logger
 
-from app._version import __git_sha__, __version__
+from app._version import __version__
 from app.v0.router import router as v0_router
 
 
@@ -11,7 +11,6 @@ from app.v0.router import router as v0_router
 async def lifespan(app: FastAPI):
     logger.info("Starting up...")
     logger.info(f"Version: {__version__}")
-    logger.info(f"Git sha: {__git_sha__}")
     logger.info("Startup complete")
     yield
     logger.info("Shutting down...")
