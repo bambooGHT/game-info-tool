@@ -9,6 +9,9 @@ from typing import Any, Dict, Generic, List, Optional, TypeVar
 import httpx
 from loguru import logger
 from pydantic import BaseModel, Field
+from returns.result import Failure, Result, Success
+
+from app.configs import config
 
 
 # 数据模型定义
@@ -94,13 +97,15 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
         """初始化robots.txt解析器"""
         try:
             robots_url = f"{self.base_url}/robots.txt"
-            response = await self.client.get(robots_url)
-            if response.status_code == 200:
-                # 简单解析robots.txt
-                self._robots_parser = response.text
-                logger.debug(f"Loaded robots.txt from {robots_url}")
-            else:
-                logger.warning(f"Failed to load robots.txt from {robots_url}")
+            response = await self._make_request(robots_url, method="GET")
+            match response:
+                case Success(value):
+                    self._robots_parser = value.text
+                    logger.debug(f"Loaded robots.txt from {robots_url}")
+                case Failure(exception):
+                    logger.warning(
+                        f"Failed to load robots.txt from {robots_url}: {exception}"
+                    )
         except Exception as e:
             logger.error(f"Error loading robots.txt: {e}")
 
@@ -133,7 +138,7 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
 
     async def _make_request(
         self, url: str, method: str = "GET", **kwargs
-    ) -> httpx.Response:
+    ) -> Result[httpx.Response, Exception]:
         """发送HTTP请求，包含重试和延迟机制
 
         Args:
@@ -148,10 +153,12 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
             httpx.HTTPError: HTTP请求错误
         """
         if not self.client:
-            raise RuntimeError("HTTP client not initialized. Use async with context.")
+            return Failure(
+                RuntimeError("HTTP client not initialized. Use async with context.")
+            )
 
         if not self._can_fetch(url):
-            raise PermissionError(f"Robots.txt disallows access to {url}")
+            return Failure(PermissionError(f"Robots.txt disallows access to {url}"))
 
         # 随机延迟请求
         delay = random.uniform(*self.request_delay)
@@ -161,6 +168,13 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
         headers = kwargs.get("headers", {})
         headers["User-Agent"] = random.choice(self.user_agents)
         kwargs["headers"] = headers
+
+        # 添加代理
+        if config.proxy:
+            kwargs["proxies"] = {
+                "http://": config.proxy,
+                "https://": config.proxy,
+            }
 
         # 重试机制
         for attempt in range(self.max_retries + 1):
@@ -173,17 +187,19 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
                     raise ValueError(f"Unsupported HTTP method: {method}")
 
                 response.raise_for_status()
-                return response
+                return Success(response)
 
             except httpx.HTTPError as e:
                 if attempt == self.max_retries:
                     logger.error(f"Failed after {self.max_retries} attempts: {e}")
-                    raise
+                    return Failure(e)
 
                 # 指数退避重试
                 wait_time = (2**attempt) + random.uniform(0, 1)
                 logger.warning(f"Request failed, retrying in {wait_time:.2f}s: {e}")
                 await asyncio.sleep(wait_time)
+
+        return Failure(httpx.HTTPError(f"Failed to make request to {url}"))
 
     @abc.abstractmethod
     async def search(self, query: str, **kwargs) -> List[T]:

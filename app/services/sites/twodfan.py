@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 
 from bs4 import BeautifulSoup
 from loguru import logger
+from returns.result import Failure, Success
 
 from app.services.base import AsyncBaseCrawler, GameInfo
 
@@ -43,7 +44,12 @@ class TwoDFanCrawler(AsyncBaseCrawler[GameInfo]):
                 search_url, method="GET", params={"keyword": query, "page": page}
             )
 
-            raw_results = await self.parse_search_results(response.text)
+            match response:
+                case Success(value):
+                    raw_results = await self.parse_search_results(value.text)
+                case Failure(exception):
+                    logger.error(f"Error searching 2dfan: {exception}")
+                    return []
 
             # 转换为GameInfo对象
             results = []
@@ -80,7 +86,16 @@ class TwoDFanCrawler(AsyncBaseCrawler[GameInfo]):
 
             response = await self._make_request(url, method="GET")
 
-            game_data = await self.parse_detail_page(response.text, url)
+            match response:
+                case Success(value):
+                    game_data = await self.parse_detail_page(value.text, url)
+                case Failure(exception):
+                    logger.error(f"Error getting detail from 2dfan: {exception}")
+                    return GameInfo(
+                        name="Error",
+                        source_url=url,
+                        introduction=f"Error fetching data: {str(exception)}",
+                    )
 
             # 转换为GameInfo对象
             return GameInfo(
