@@ -3,32 +3,13 @@ from __future__ import annotations
 import abc
 import asyncio
 import random
-from datetime import datetime
-from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import Any, Generic, List, Optional, TypeVar
 
 import httpx
 from loguru import logger
-from pydantic import BaseModel, Field
 from returns.result import Failure, Result, Success
 
 from app.configs import config
-
-
-# 数据模型定义
-class GameInfo(BaseModel):
-    """游戏信息数据模型"""
-
-    name: str
-    translate_name: Optional[str] = None
-    image: Optional[str] = None
-    brand: Optional[str] = None
-    release_date: Optional[datetime] = None
-    platform: List[str] = Field(default_factory=list)
-    game_tags: List[str] = Field(default_factory=list)
-    porn_tags: List[str] = Field(default_factory=list)
-    source_url: str
-    introduction: Optional[str] = None
-
 
 # 定义泛型类型变量，用于不同爬虫的不同数据模型
 T = TypeVar("T")
@@ -220,7 +201,7 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def search(self, query: str, **kwargs) -> List[T]:
+    async def search(self, query: str, **kwargs) -> Result[List[T]]:
         """搜索页面爬取方法
 
         Args:
@@ -228,12 +209,12 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
             **kwargs: 其他搜索参数
 
         Returns:
-            List[T]: 搜索结果列表
+            Result[List[T]]: 搜索结果列表
         """
         pass
 
     @abc.abstractmethod
-    async def get_detail(self, url: str, **kwargs) -> T:
+    async def get_detail(self, url: str, **kwargs) -> Result[T]:
         """详情页面爬取方法
 
         Args:
@@ -241,28 +222,24 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
             **kwargs: 其他参数
 
         Returns:
-            T: 详情数据
+            Result[T]: 详情数据
         """
         pass
 
     @abc.abstractmethod
-    async def parse_search_results(
-        self, content: str
-    ) -> Result[List[Dict[str, str]], str]:
+    async def parse_search_results(self, content: str) -> Result[Any, str]:
         """解析搜索结果页面
 
         Args:
             content: 页面内容
 
         Returns:
-            Result[List[Dict[str, str]], str]: 解析后的搜索结果
+            Result[Any, str]: 解析后的搜索结果
         """
         pass
 
     @abc.abstractmethod
-    async def parse_detail_page(
-        self, content: str, url: str
-    ) -> Result[Dict[str, Any], str]:
+    async def parse_detail_page(self, content: str, url: str) -> Result[Any, str]:
         """解析详情页面
 
         Args:
@@ -270,6 +247,6 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
             url: 页面URL
 
         Returns:
-            Result[Dict[str, Any], str]: 解析后的详情数据
+            Result[Any, str]: 解析后的详情数据
         """
         pass
