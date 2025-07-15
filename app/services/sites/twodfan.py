@@ -13,14 +13,14 @@ class TwoDFanModel(BaseModel):
     """2dfan数据模型"""
 
     name: str
-    translate_name: Optional[str] = None
+    translateName: Optional[str] = None
     image: Optional[str] = None
     brand: Optional[str] = None
-    release_date: Optional[str] = None
+    releaseDate: Optional[str] = None
     platform: List[str] = Field(default_factory=list)
-    game_tags: List[str] = Field(default_factory=list)
-    porn_tags: List[str] = Field(default_factory=list)
-    source_url: str
+    gameTags: List[str] = Field(default_factory=list)
+    pornTags: List[str] = Field(default_factory=list)
+    sourceUrl: str
     introduction: Optional[str] = None
 
 
@@ -103,14 +103,14 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
                             return Success(
                                 TwoDFanModel(
                                     name=data.get("name", ""),
-                                    translate_name=data.get("translateName"),
+                                    translateName=data.get("translateName"),
                                     image=data.get("image"),
                                     brand=data.get("brand"),
-                                    release_date=data.get("releaseDate"),
+                                    releaseDate=data.get("releaseDate"),
                                     platform=data.get("platform", []),
-                                    game_tags=data.get("gameTags", []),
-                                    porn_tags=data.get("pornTags", []),
-                                    source_url=url,
+                                    gameTags=data.get("gameTags", []),
+                                    pornTags=data.get("pornTags", []),
+                                    sourceUrl=url,
                                     introduction=data.get("introduction"),
                                 )
                             )
