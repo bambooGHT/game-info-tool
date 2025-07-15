@@ -69,6 +69,13 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0",
         ]
+        self.headers = {
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "DNT": "1",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+        }
 
         # 初始化HTTP客户端
         self.client = None
@@ -76,11 +83,17 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
 
     async def __aenter__(self) -> AsyncBaseCrawler[T]:
         """异步上下文管理器入口"""
-        self.client = httpx.AsyncClient(
-            timeout=self.timeout,
-            follow_redirects=True,
-            headers={"User-Agent": random.choice(self.user_agents)},
-        )
+
+        client_kwargs = {
+            "timeout": self.timeout,
+            "follow_redirects": True,
+            "headers": {"User-Agent": random.choice(self.user_agents), **self.headers},
+        }
+
+        if config.proxy:
+            client_kwargs["proxy"] = config.proxy
+
+        self.client = httpx.AsyncClient(**client_kwargs)
 
         # 如果需要遵守robots.txt，则初始化解析器
         if self.respect_robots_txt:
@@ -169,13 +182,6 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
         headers["User-Agent"] = random.choice(self.user_agents)
         kwargs["headers"] = headers
 
-        # 添加代理
-        if config.proxy:
-            kwargs["proxies"] = {
-                "http://": config.proxy,
-                "https://": config.proxy,
-            }
-
         # 重试机制
         for attempt in range(self.max_retries + 1):
             try:
@@ -200,6 +206,18 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
                 await asyncio.sleep(wait_time)
 
         return Failure(httpx.HTTPError(f"Failed to make request to {url}"))
+
+    @abc.abstractmethod
+    async def _get_search_html(
+        self, query: str, **kwargs
+    ) -> Result[httpx.Response, Exception]:
+        pass
+
+    @abc.abstractmethod
+    async def _get_detail_html(
+        self, url: str, **kwargs
+    ) -> Result[httpx.Response, Exception]:
+        pass
 
     @abc.abstractmethod
     async def search(self, query: str, **kwargs) -> List[T]:

@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+import httpx
 from bs4 import BeautifulSoup
 from loguru import logger
-from returns.result import Failure, Success
+from returns.result import Failure, Result, Success
 
 from app.services.base import AsyncBaseCrawler, GameInfo
 
@@ -15,7 +16,7 @@ class TwoDFanCrawler(AsyncBaseCrawler[GameInfo]):
         """初始化2dfan爬虫"""
         timeout = kwargs.get("timeout", 30)
         max_retries = kwargs.get("max_retries", 3)
-        request_delay = kwargs.get("request_delay", (2.0, 5.0))
+        request_delay = kwargs.get("request_delay", (0.5, 2.0))
         respect_robots_txt = kwargs.get("respect_robots_txt", True)
 
         super().__init__(
@@ -25,6 +26,18 @@ class TwoDFanCrawler(AsyncBaseCrawler[GameInfo]):
             request_delay=request_delay,
             respect_robots_txt=respect_robots_txt,
         )
+
+    async def _get_search_html(
+        self, query: str, **kwargs
+    ) -> Result[httpx.Response, Exception]:
+        return await self._make_request(
+            f"{self.base_url}/subjects/search?keyword={query}", method="GET"
+        )
+
+    async def _get_detail_html(
+        self, url: str, **kwargs
+    ) -> Result[httpx.Response, Exception]:
+        return await self._make_request(url, method="GET")
 
     async def search(self, query: str, **kwargs) -> List[GameInfo]:
         """搜索2dfan游戏

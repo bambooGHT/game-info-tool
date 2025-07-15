@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html class="no-js">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <title>游戏条目搜索：戦女神VERITA_2DFan</title>
+  <meta charset='utf-8' />
+  <meta name="keywords" content="" />
+  <meta name="description" content="符合关键字  的游戏条目" />
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="/assets/application-d1e69eac9c355d302e0d067acf3ccd98252693907caff2b955012cd7cbba0846.css" media="all" />
+  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+  <!--[if lt IE 9]>
+  <script src="//apps.bdimg.com/libs/html5shiv/r29/html5.min.js"></script>
+  <![endif]-->
+
+  <script src="/assets/ckeditor-theme-switcher-af72714207693c33321a017b9e41cc2b5e94890375a720ad429dc1823318ade9.js"></script>
+  <script src="//lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/ckeditor/4.11.1/ckeditor.js"></script>
+  <script src="/assets/ckeditor-skin-loader-24b3d9944853e9ab796a58030c143d00cdb155ad81b36a034381861f460512b6.js"></script>
+  <script src="/assets/ckeditor/config-a69a6491c2b861cc72216e824dcee3f889759b9c48847dbb4f5b5242f15f5249.js"></script>
+  <script src="/assets/application-bb92338c08952c83925a8a0e3d5c8bee2034929bd3af827ce8487450050f9f41.js"></script>
+
+  <link rel="stylesheet" href="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/font-awesome/4.4.0/css/font-awesome.min.css" media="all" />
+
+  <script src="/assets/subject-740ab2bb16af731e8a6ec688d6c90010bae46e7962ef707c1160152ccbbdcc0e.js"></script>
+  <meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="wMZevjIoPYHyQh9mKKduAQdYhE9ekclDEqqsD80MmmdIJbXiIqSfKLjVbCo8jpQleSGyXB-hlKDNlg4OZAXeVw" />
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <div class="alert text-center" id="site_announcement">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <a href="/posts/29988">第五期游戏感想征集活动</a>
+  </div>
+  <script>
+    $('#site_announcement').bind('closed', function () {
+      setCookie('hide_site_announcement_1752334744', true, 409);
+    })
+  </script>
+
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container-fluid">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <div class="nav-collapse collapse">
+          <ul class="nav pull-right">
+            <li class="dropdown">
+              <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"> 访客 <i class="caret"></i></a>
+              <ul class="dropdown-menu">
+                <li><a href="/users/not_authenticated">登录</a></li>
+                <li><a href="/users/new">注册</a></li>
+                <li class="theme-toggle-item">
+                  <div class="dropdown-theme-toggle">
+                    <span>黑暗主题</span>
+                    <label class="theme-switch pull-right">
+                      <input type="checkbox" id="theme-switch">
+                      <span class="slider">
+                        <i class="icon-sun icon"></i>
+                        <i class="icon-moon icon"></i>
+                      </span>
+                    </label>
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="nav">
+            <li>
+              <a href="/">首页</a>
+            </li>
+            <li class="dropdown ">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">找游戏 <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="/subjects">游戏列表</a>
+                </li>
+                <li>
+                  <a href="/subjects/top">排行榜</a>
+                </li>
+                <li>
+                  <a href="/users/not_authenticated">标签搜索</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="/downloads">下资源</a>
+            </li>
+            <li>
+              <a href="/lists">目录</a>
+            </li>
+            <li>
+              <a href="/subjects/incoming/2025/07">本月新作</a>
+            </li>
+            <li>
+              <a href="/activities">站内动态</a>
+            </li>
+            <li>
+              <a href="/groups">小组</a>
+            </li>
+            <li>
+              <a href="https://bbs.kfpromax.com/" target="_blank">KF Online</a>
+            </li>
+          </ul>
+        </div>
+        <!--/.nav-collapse -->
+      </div>
+    </div>
+  </div>
+  <script>
+    $('#purge_notification').on('ajax:success', function(event, data, status, xhr) {
+      $("#last_notifications .modal-body").html('<p class="text-center muted">没有新通知</p>');
+      $(".notification-button .badge").remove();
+      $("#last_notifications").modal('hide');
+    }).on('ajax:error', function(event, xhr, status, error) {
+      var errors = $.parseJSON(xhr.responseText).message.join(',');
+      alert(errors);
+    });
+  </script>
+
+
+  <div class="site-search">
+    <div class="container">
+      <div class="row-fluid">
+        <div class="span2">
+          <h3 class="site-name">
+            <a href="/">
+              2DFan
+            </a>
+          </h3>
+        </div>
+        <div class="span5" id="search-bar">
+          <form id="site-search-form" class="form-search" action="/subjects/search" accept-charset="UTF-8" method="get">
+            <input type="text" name="keyword" id="keyword" value="戦女神VERITA" placeholder="高级用法参见页面底部使用帮助" class="span8" />
+            <input type="submit" value="搜索" class="btn notification" id="search-button" data-disable-with="搜索" />
+</form>          <!--<a href="#" class="search_tag">Bradyon Veda -ブラディオン ベーダ</a>-->
+        </div>
+          <div class="span5 banner">
+    <div>
+      <a href="/jump_to/3011" rel=”nofollow” target="_blank"><img src="https://img.achost.top/uploads/ads/bfcf6d0439a30d6e25f9abd519fc5405.jpg" /></a>
+    </div>
+  </div>
+
+
+  <!-- 广告位：2dfan_站顶通栏横幅 -->
+  <div class="span12 no-ml banner mt-10">
+    <div>
+      <a href="/jump_to/3006" rel=”nofollow” target="_blank"><img src="https://img.achost.top/uploads/ads/6a161b13ffe5a2d0b666f414658b0446.jpg" /></a>
+    </div>
+  </div>
+
+
+<script type="text/javascript">
+  var bt_sucai = 'https://img.achost.top/uploads/ads/2d2e30aa8400af00058dcbb9efb9dc07.png'; //背投素材
+  var bt_link = '/jump_to/3437'; //背投链接
+
+  var index_bghtml='';
+  // 根据当前主题设置背景色，但使用transparent让PNG的透明部分真正透明
+  var bgColor = 'transparent';
+  index_bghtml+='<div class="adv-couplets index_bg_box visible-desktop" id="index_bg_box" style="background: ' + bgColor + ' url('+bt_sucai+') center 0px no-repeat">'
+  index_bghtml+='<div class="adv-closebt"></div>';
+  // 添加左右可点击区域，但不设置背景图
+  index_bghtml+='<div class="adv-left"><a href="'+bt_link+'" rel="nofollow" target="_blank"></a></div>';
+  index_bghtml+='<div class="adv-right"><a href="'+bt_link+'" rel="nofollow" target="_blank"></a></div>';
+  index_bghtml+='</div>';
+  $('body').append(index_bghtml);
+
+  // 监听主题变化，但保持背景透明
+  $('#theme-switch').on('change', function() {
+    // 保持背景透明
+    $('#index_bg_box').css('background-color', 'transparent');
+  });
+
+  var bgTH=$(".navbar-fixed-top").height();
+  isIE6 = function () {return !!window.ActiveXObject && !window.XMLHttpRequest;} //判断IE6;
+  function scroll_ad(){
+    var wt = $(window).scrollTop();
+    t = wt >= bgTH ? isIE6() == true ? wt : 0 : bgTH - wt;
+    $('#index_bg_box').css({'background-position':'center '+t+'px'});
+    $('.adv-left, .adv-right').css({'top': t+'px'});
+    $('#index_bg_box .close_btn').css({'top':t+'px'});
+  }
+  scroll_ad();
+  $(window).scroll(function() {scroll_ad();});
+  $('#index_bg_box .adv-closebt').click(function(){
+  $('#index_bg_box').fadeOut(function(){
+    $('#index_bg_box').remove();
+      $('.content').stop().animate({'margin-top':'25px'},300);
+    });
+  })
+</script>
+
+
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+
+    <div class="row-fluid">
+
+      <div class="span9" id="content">
+
+        <div class="row-fluid">
+          <!-- block -->
+          <div class="block">
+            <div class="navbar navbar-inner block-header">
+              <div class="span5 keyword">
+                游戏列表
+－关键字：<mark>戦女神VERITA</mark>              </div>
+              <form id="subjects-filter" action="/subjects/search/?keyword=%E6%88%A6%E5%A5%B3%E7%A5%9EVERITA" accept-charset="UTF-8" data-remote="true" method="get">
+              <div class="span7 text-right">
+                <label class="radio inline">
+                  <input type="radio" name="order" id="order_intro" value="intro" class="order-filter filter-options" checked="checked" /> 默认
+                </label>
+                <label class="radio inline">
+                  <input type="radio" name="order" id="order_released_at" value="released_at" class="order-filter filter-options" /> 按发售日期
+                </label>
+                <label class="radio inline">
+                  <input type="radio" name="order" id="order_comments_count" value="comments_count" class="order-filter filter-options" /> 按热度
+                </label>
+                <label class="radio inline">
+                  <input type="radio" name="order" id="order_score" value="score" class="order-filter filter-options" /> 按评分
+                </label>
+
+
+  <a class="btn btn-small btn-info add-new pull-right" style="margin-left: 10px" rel="nofollow" href="/subjects/new">添加新条目</a>
+              </div>
+              <div class="span10 search-result-tags">
+</div>
+</form>            </div>
+
+            <div class="block-content collapse in">
+              <ul class="media-list inline intro-list" id="subjects">
+                    <li class="media">
+    <a class="pull-left" target="_blank" href="/subjects/1006">
+      <img class="media-object subject-package" src="https://img.achost.top/package_thumb.jpg" data-normal="https://img.achost.top/uploads/subjects/packages/normal_3feb4a95b1b3ec30d31a86226338b94d.jpg">
+</a>    <div class="media-body">
+      <h4 class="media-heading"><a target="_blank" href="/subjects/1006">戦女神VERITA</a></h4>
+
+      <p class="tags">
+        <span>品牌：<a href="/tags/%E3%82%A8%E3%82%A6%E3%82%B7%E3%83%A5%E3%83%AA%E3%83%BC/">エウシュリー</a></span>
+        <span>发售日期：2010-04-23</span>
+        <span>原画：
+            <a href="/tags/%E9%B3%A9%E6%9C%88%E3%81%A4%E3%81%BF%E3%81%8D/">鳩月つみき</a>
+        </span>
+      </p>
+      <p class="tags">
+        <span>剧本：
+            <a href="/tags/%E9%AB%98%E6%9D%89%E4%B9%9D%E9%83%8E/">高杉九郎</a>
+            <a href="/tags/%E7%9F%A2%E7%94%B0%E5%BD%B1%E8%A6%8B/">矢田影見</a>
+            <a href="/tags/%E8%97%A4%E5%8E%9F%E7%B5%84%E9%95%B7/">藤原組長</a>
+        </span>
+      </p>
+      <p class="tags">
+        <span>TAG：
+            <a href="/tags/RPG/">RPG</a>
+            <a href="/tags/%E6%9E%B6%E7%A9%BA%E4%B8%96%E7%95%8C/">架空世界</a>
+            <a href="/tags/%E9%AD%94%E6%B3%95/">魔法</a>
+            <a href="/tags/%E5%86%92%E9%99%A9/">冒险</a>
+            <a href="/tags/%E6%88%98%E6%96%97/">战斗</a>
+            <a href="/tags/%E6%B1%89%E5%8C%96/">汉化</a>
+        </span>
+      </p>
+        <p class="tags" id="resources">
+    <span>介绍：<a class="badge badge-info" target="_blank" href="/topics/1006">有</a></span>
+    <span>攻略：<a class="badge badge-info" target="_blank" href="/subjects/1006/walkthroughs">3</a></span>
+    <br />
+    <span>
+      下载：
+        <a class="badge badge-info" target="_blank" href="/subjects/1006/downloads/kind/cg_save">存档</a>
+        <a class="badge badge-info" target="_blank" href="/subjects/1006/downloads/kind/human_trans">汉化</a>
+      <a class="badge badge-info" target="_blank" href="/subjects/1006/downloads">其他</a>
+    </span>
+  </p>
+
+
+
+
+
+
+    </div>
+  </li>
+  <li class="media">
+    <a class="pull-left" target="_blank" href="/subjects/2268">
+      <img class="media-object subject-package" src="https://img.achost.top/package_thumb.jpg" data-normal="https://img.achost.top/uploads/subjects/packages/normal_1c624112a3a5269aae6a28907e690ab6.jpg">
+</a>    <div class="media-body">
+      <h4 class="media-heading"><a target="_blank" href="/subjects/2268">天秤のLa DEA。 ～戦女神MEMORIA～</a></h4>
+
+      <p class="tags">
+        <span>品牌：<a href="/tags/%E3%82%A8%E3%82%A6%E3%82%B7%E3%83%A5%E3%83%AA%E3%83%BC/">エウシュリー</a></span>
+        <span>发售日期：2014-04-25</span>
+        <span>原画：
+            <a href="/tags/%E9%B3%A9%E6%9C%88%E3%81%A4%E3%81%BF%E3%81%8D/">鳩月つみき</a>
+            <a href="/tags/%E3%82%84%E3%81%8F%E3%82%8A/">やくり</a>
+            <a href="/tags/%E3%81%BF%E3%81%A4%E3%81%8D/">みつき</a>
+            <a href="/tags/%E3%81%86%E3%82%8D/">うろ</a>
+            <a href="/tags/%E3%82%88%E3%81%97%E3%81%A0%E3%81%9F%E3%81%8F%E3%81%BE/">よしだたくま</a>
+        </span>
+      </p>
+      <p class="tags">
+        <span>剧本：
+            <a href="/tags/%E9%AB%98%E6%9D%89%E4%B9%9D%E9%83%8E/">高杉九郎</a>
+            <a href="/tags/%E7%9F%A2%E7%94%B0%E5%BD%B1%E8%A6%8B/">矢田影見</a>
+            <a href="/tags/%E7%AE%B1%E5%8D%81/">箱十</a>
+        </span>
+      </p>
+      <p class="tags">
+        <span>TAG：
+            <a href="/tags/RPG/">RPG</a>
+            <a href="/tags/%E6%9E%B6%E7%A9%BA%E4%B8%96%E7%95%8C/">架空世界</a>
+            <a href="/tags/%E5%A5%B3%E6%88%98%E5%A3%AB/">女战士</a>
+            <a href="/tags/%E6%88%98%E6%96%97/">战斗</a>
+            <a href="/tags/%E5%A5%B3%E4%BB%86/">女仆</a>
+            <a href="/tags/%E6%B1%89%E5%8C%96/">汉化</a>
+        </span>
+      </p>
+        <p class="tags" id="resources">
+    <span>介绍：<a class="badge badge-info" target="_blank" href="/topics/2268">有</a></span>
+    <span>攻略：<a class="badge badge-info" target="_blank" href="/subjects/2268/walkthroughs">4</a></span>
+    <br />
+    <span>
+      下载：
+        <a class="badge badge-info" target="_blank" href="/subjects/2268/downloads/kind/cg_save">存档</a>
+        <a class="badge badge-info" target="_blank" href="/downloads/17478">汉化</a>
+      <a class="badge badge-info" target="_blank" href="/subjects/2268/downloads">其他</a>
+    </span>
+  </p>
+
+
+
+
+
+
+    </div>
+  </li>
+
+
+<div class="pagination pagination-centered">
+
+  <script type="text/javascript">
+    $('#subjects-filter').on('ajax:success', function(event, data, status, xhr) {
+      $('#subjects').html(data['subjects']);
+      var layzr = new Layzr();
+      layzr.update().check();
+    });
+
+    $(document).on("click", ".order-filter", function(){
+      $('#subjects-filter').submit();
+    });
+
+    // 当选中复选框 #trans-filter 时，触发 form 的提交事件
+    $(document).on("change", "#trans-filter", function(){
+      $('#subjects-filter').submit();
+    });
+
+    $(document).on("click", ".result-tag", function(){
+      // 将当前元素的id值移除其中字符 'result-filter' 后，作为 id 为 filter_by 的 input 的值
+      var filter_by = $(this).attr('id').replace('result-filter-', '');
+      $('#filter-by').val(filter_by);
+      // 触发 form 的提交事件
+      $('#subjects-filter').submit();
+    });
+
+    $('.pagination a').on('ajax:success', function(event, data, status, xhr) {
+      $('#subjects').html(data['subjects']);
+    });
+
+  </script>
+</div>
+
+              </ul>
+            </div>
+          </div>
+          <!-- /block -->
+        </div>
+
+      </div>
+      <div class="span3" id="sidebar">
+        <div class="row-fluid">
+          <div class="block">
+            <div class="navbar navbar-inner block-header">
+              <div class="pull-left title">常用标签<small>（<a href="/tags/kind/tags">全部</a>）</small></div>
+            </div>
+          </div>
+          <div class="block-content collapse in tags">
+            <a class="label label-info" href="/tags/%E4%BA%BA%E5%B7%A5%E6%B1%89%E5%8C%96">人工汉化</a>
+            <a class="label label-info" href="/tags/AI%E7%BF%BB%E8%AF%91">AI翻译</a>
+            <a class="label label-info" href="/tags/%E6%99%AE%E9%80%9A%E6%9C%BA%E7%BF%BB">普通机翻</a>
+            <a class="label label-info" href="/tags/SLG">SLG</a>
+            <a class="label label-info" href="/tags/NTR">NTR</a>
+            <a class="label label-info" href="/tags/%E6%9E%B6%E7%A9%BA%E4%B8%96%E7%95%8C">架空世界</a>
+            <a class="label label-info" href="/tags/RPG">RPG</a>
+            <a class="label label-info" href="/tags/Loli">Loli</a>
+            <a class="label label-info" href="/tags/%E5%A6%B9">妹</a>
+            <a class="label label-info" href="/tags/%E5%90%8E%E5%AE%AB">后宫</a>
+            <a class="label label-info" href="/tags/%E7%BA%AF%E7%88%B1">纯爱</a>
+            <a class="label label-info" href="/tags/%E5%90%8C%E4%BA%BA">同人</a>
+          </div>
+        </div>
+
+
+        <div class="row-fluid">
+          <div class="block">
+            <div class="navbar navbar-inner block-header">
+              <div class="pull-left title">热门剧本<small>（<a href="/tags/kind/playwrights">全部</a>）</small></div>
+            </div>
+          </div>
+          <div class="block-content collapse in tags">
+            <a class="label label-info" href="/tags/%E8%99%9A%E6%B7%B5%E7%8E%84">虚淵玄</a>
+            <a class="label label-info" href="/tags/%E7%94%B0%E4%B8%AD%E3%83%AD%E3%83%9F%E3%82%AA">田中ロミオ</a>
+            <a class="label label-info" href="/tags/%E9%BA%BB%E6%9E%9D%E5%87%86">麻枝准</a>
+            <a class="label label-info" href="/tags/%E5%92%8C%E6%B3%89%E4%B8%87%E5%A4%9C">和泉万夜</a>
+            <a class="label label-info" href="/tags/%E6%96%B0%E5%B3%B6%E5%A4%95">新島夕</a>
+            <a class="label label-info" href="/tags/%E7%8E%8B%E9%9B%80%E5%AD%AB">王雀孫</a>
+          </div>
+        </div>
+
+        <div class="row-fluid">
+          <div class="block">
+            <div class="navbar navbar-inner block-header">
+              <div class="pull-left title">热门品牌<small>（<a href="/tags/kind/maker">全部</a>）</small></div>
+            </div>
+          </div>
+          <div class="block-content collapse in tags">
+            <a class="label label-info" href="/tags/%E3%82%A8%E3%82%A6%E3%82%B7%E3%83%A5%E3%83%AA%E3%83%BC">Eushully</a>
+            <a class="label label-info" href="/tags/elf">Elf</a>
+            <a class="label label-info" href="/tags/AliceSoft">AliceSoft</a>
+            <a class="label label-info" href="/tags/Key">Key</a>
+            <a class="label label-info" href="/tags/August">August</a>
+            <a class="label label-info" href="/tags/NitroPlus">Nitro+</a>
+            <a class="label label-info" href="/tags/%E6%88%AF%E7%94%BB">戏画</a>
+            <a class="label label-info" href="/tags/Leaf">Leaf</a>
+          </div>
+        </div>
+
+
+<!-- 广告位：2dfan_侧栏矩形 -->
+<div class="row-fluid">
+  <div class="collapse in text-center">
+    <a href="/jump_to/3580" rel=”nofollow” target="_blank"><img src="https://img.achost.top/uploads/ads/ce103e1bcd6a3782d7d55f67791c63b2.jpg" /></a>
+  </div>
+</div>
+
+
+          <div class="row-fluid">
+    <div class="block">
+      <div class="navbar navbar-inner block-header">
+        <div class="pull-left title">近期热门</div>
+      </div>
+    </div>
+    <div class="block-content collapse in">
+      <ol>
+        <li><a target="_blank" href="/subjects/20476">極限痴漢特異点ＮＥＯ</a></li>
+        <li><a target="_blank" href="/subjects/20320">ハッピーウィークエンド</a></li>
+        <li><a target="_blank" href="/subjects/18947">ネコぱら After ラ・ヴレ・ファミーユ</a></li>
+        <li><a target="_blank" href="/subjects/20272">シークレット・デッサン</a></li>
+        <li><a target="_blank" href="/subjects/20198">若い男にハマってしまったパートの奥さんのお話</a></li>
+        <li><a target="_blank" href="/subjects/21185">请成为最能干的VTuber吧</a></li>
+        <li><a target="_blank" href="/subjects/20648">WANNABE→CREATORS 2</a></li>
+        <li><a target="_blank" href="/subjects/19297">KANADE</a></li>
+        <li><a target="_blank" href="/subjects/20781">仲良し母娘と３Ｐ同居生活 ～義母の指導で夫婦円満～</a></li>
+        <li><a target="_blank" href="/subjects/21187">妖狐的深夜直播</a></li>
+      </ol>
+    </div>
+  </div>
+
+      </div>
+
+      <!--/span-->
+    </div>
+
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      $('.dropdown-toggle').dropdown();
+    });
+  </script>
+
+
+
+    <hr>
+    <footer>
+
+
+<div id="adv-fixed-square">
+  <span class="adv-closebt"></span>
+  <a href="/jump_to/3003" rel=”nofollow” target="_blank">
+    <img src="https://img.achost.top/uploads/ads/22ee56d9658c5bf010fc3c6bb1c3bcbf.jpg" class="adv-auto-width-pic" />
+  </a>
+</div>
+
+
+
+  <div class="container-fluid">
+    <div class="span3">
+      <p>&copy; Since <a href="/">2DFan</a> 2005</p>
+    </div>
+    <div class="span8">
+      <ul class="inline">
+        <li><a href="/copyright">版权声明</a>
+        </li>
+        <li><a href="/newbie_guide">新手指引</a>
+        </li>
+        <li><a href="/help">使用帮助</a>
+        </li>
+        <li><a href="/groups/feedback">站务反馈</a>
+        </li>
+        <li><a href="/domain">域名线路</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+
+  </div>
+  <!--/.fluid-container-->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RF77TZ6QMN"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-RF77TZ6QMN');
+</script>
+</body>
+</html>
