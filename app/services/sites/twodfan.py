@@ -144,42 +144,41 @@ class TwoDFanCrawler(AsyncBaseCrawler[GameInfo]):
             logger.warning(f"Failed to parse date: {date_str}")
             return None
 
-    async def parse_search_results(self, content: str) -> List[Dict[str, Any]]:
+    async def parse_search_results(
+        self, content: str
+    ) -> Result[List[Dict[str, str]], str]:
         """解析搜索结果页面
 
         Args:
             content: 页面HTML内容
 
         Returns:
-            List[Dict[str, Any]]: 解析后的搜索结果
+            Result[List[Dict[str, str]], str]: 解析后的搜索结果
         """
-        # 这里只是一个示例实现，实际解析逻辑需要根据2dfan的HTML结构调整
         results = []
 
         try:
             soup = BeautifulSoup(content, "html.parser")
-            # 假设搜索结果在具有特定类的div中
-            game_items = soup.select(".game-item")  # 替换为实际的CSS选择器
+            game_items = soup.select("#subjects li.media")
 
             for item in game_items:
-                game_data = {
-                    "name": item.select_one(".name").text.strip()
-                    if item.select_one(".name")
-                    else "",
-                    "translate_name": item.select_one(".translate-name").text.strip()
-                    if item.select_one(".translate-name")
-                    else None,
-                    "url": item.select_one("a")["href"] if item.select_one("a") else "",
-                    "image": item.select_one("img")["src"]
-                    if item.select_one("img")
-                    else None,
-                }
-                results.append(game_data)
+                link_elem = item.select_one("h4.media-heading a")
+                if not link_elem:
+                    continue
+                game_url = link_elem.get("href", "")
+                game_name = link_elem.text.strip()
+                results.append(
+                    {
+                        "name": game_name,
+                        "url": f"{self.base_url}{game_url}",
+                    }
+                )
 
         except Exception as e:
             logger.error(f"Error parsing search results: {e}")
+            return Failure(str(e))
 
-        return results
+        return Success(results)
 
     async def parse_detail_page(self, content: str, url: str) -> Dict[str, Any]:
         """解析详情页面

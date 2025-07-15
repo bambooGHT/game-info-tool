@@ -246,14 +246,16 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def parse_search_results(self, content: str) -> List[Dict[str, Any]]:
+    async def parse_search_results(
+        self, content: str
+    ) -> Result[List[Dict[str, str]], str]:
         """解析搜索结果页面
 
         Args:
             content: 页面内容
 
         Returns:
-            List[Dict[str, Any]]: 解析后的搜索结果
+            Result[List[Dict[str, str]], str]: 解析后的搜索结果
         """
         pass
 
