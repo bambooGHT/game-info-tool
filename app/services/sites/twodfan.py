@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import httpx
 from bs4 import BeautifulSoup
@@ -13,15 +13,15 @@ class TwoDFanModel(BaseModel):
     """2dfan数据模型"""
 
     name: str
-    translateName: Optional[str] = None
-    image: Optional[str] = None
-    brand: Optional[str] = None
-    releaseDate: Optional[str] = None
+    translateName: str = ""
+    image: str = ""
+    brand: str = ""
+    releaseDate: str = ""
     platform: List[str] = Field(default_factory=list)
     gameTags: List[str] = Field(default_factory=list)
     pornTags: List[str] = Field(default_factory=list)
     sourceUrl: str
-    introduction: Optional[str] = None
+    introduction: str = ""
 
 
 class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
@@ -105,15 +105,15 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
                             return Success(
                                 TwoDFanModel(
                                     name=data.get("name", ""),
-                                    translateName=data.get("translateName"),
-                                    image=data.get("image"),
-                                    brand=data.get("brand"),
-                                    releaseDate=data.get("releaseDate"),
+                                    translateName=data.get("translateName", ""),
+                                    image=data.get("image", ""),
+                                    brand=data.get("brand", ""),
+                                    releaseDate=data.get("releaseDate", ""),
                                     platform=data.get("platform", []),
                                     gameTags=data.get("gameTags", []),
                                     pornTags=data.get("pornTags", []),
-                                    sourceUrl=url,
-                                    introduction=data.get("introduction"),
+                                    sourceUrl=url or "",
+                                    introduction=data.get("introduction", ""),
                                 )
                             )
                         case Failure(e):
@@ -219,15 +219,15 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
         """
         game_data = {
             "name": "",
-            "translateName": None,
-            "image": None,
-            "brand": None,
-            "releaseDate": None,
+            "translateName": "",
+            "image": "",
+            "brand": "",
+            "releaseDate": "",
             "platform": [],
             "gameTags": [],
             "pornTags": [],
             "sourceUrl": url,
-            "introduction": None,
+            "introduction": "",
         }
 
         try:
@@ -302,6 +302,7 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
                 for p in intro_paragraphs:
                     text = p.get_text().strip()
                     if text and len(text) > 10:  # 过滤掉太短的文本
+                        logger.info(f"intro_texts: {text}")
                         intro_texts.append(text)
 
                 if intro_texts:
