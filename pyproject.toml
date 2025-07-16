@@ -1,6 +1,5 @@
 [project]
 name = "qyg-api"
-# version = "0.1.0"
 dynamic = ["version"]
 description = "轻烟阁API服务"
 readme = "README.md"
@@ -22,6 +21,10 @@ dev = [
     "ruff>=0.12.3",
     "setuptools-scm>=8.3.1",
 ]
+
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm>=8.0"]
+build-backend = "setuptools.build_meta"
 
 [tool.ruff]
 include = ["pyproject.toml", "app/**/*.py", "tests/**/*.py"]
