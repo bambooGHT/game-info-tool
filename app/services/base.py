@@ -201,7 +201,7 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def search(self, query: str, **kwargs) -> Result[List[T]]:
+    async def search(self, query: str, **kwargs) -> Result[List[T], str]:
         """搜索页面爬取方法
 
         Args:
@@ -209,12 +209,12 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
             **kwargs: 其他搜索参数
 
         Returns:
-            Result[List[T]]: 搜索结果列表
+            Result[List[T], str]: 搜索结果列表
         """
         pass
 
     @abc.abstractmethod
-    async def get_detail(self, url: str, **kwargs) -> Result[T]:
+    async def get_detail(self, url: str, **kwargs) -> Result[T, str]:
         """详情页面爬取方法
 
         Args:
@@ -222,7 +222,7 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
             **kwargs: 其他参数
 
         Returns:
-            Result[T]: 详情数据
+            Result[T, str]: 详情数据
         """
         pass
 

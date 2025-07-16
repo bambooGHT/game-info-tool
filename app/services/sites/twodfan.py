@@ -50,7 +50,7 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
             **kwargs: 其他搜索参数，如page
 
         Returns:
-            Result[List[TwoDFanModel]]: 游戏信息列表
+            Result[List[TwoDFanModel], str]: 游戏信息列表
         """
         try:
             response = await self._get_search_html(query, **kwargs)
@@ -74,9 +74,11 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
                         case Failure(exception):
                             logger.error(f"Error parsing search results: {exception}")
                             return Failure(exception)
-                case Failure(exception):
-                    logger.error(f"Error searching 2dfan: {exception}")
-                    return Failure(exception)
+                case Failure(e):
+                    logger.error(f"Error searching 2dfan: {e}")
+                    return Failure(str(e))
+
+            return Failure("未知错误")
 
         except Exception as e:
             logger.error(f"Error searching 2dfan: {e}")
@@ -90,7 +92,7 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
             **kwargs: 其他参数
 
         Returns:
-            Result[TwoDFanModel]: 游戏详细信息
+            Result[TwoDFanModel, str]: 游戏详细信息
         """
         try:
             response = await self._get_detail_html(url, **kwargs)
@@ -114,12 +116,14 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
                                     introduction=data.get("introduction"),
                                 )
                             )
-                        case Failure(exception):
-                            logger.error(f"Error parsing detail page: {exception}")
-                            return Failure(exception)
-                case Failure(exception):
-                    logger.error(f"Error getting detail from 2dfan: {exception}")
-                    return Failure(exception)
+                        case Failure(e):
+                            logger.error(f"Error parsing detail page: {e}")
+                            return Failure(str(e))
+                case Failure(e):
+                    logger.error(f"Error getting detail from 2dfan: {e}")
+                    return Failure(str(e))
+
+            return Failure("未知错误")
 
         except Exception as e:
             logger.error(f"Error getting detail from 2dfan: {e}")
@@ -254,7 +258,7 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
                 "img[src*='subjects'], img[src*='uploads/subjects']"
             )
             if image_elem and "src" in image_elem.attrs:
-                src = image_elem["src"]
+                src = str(image_elem["src"])
                 if src.startswith("//"):
                     src = "https:" + src
                 elif src.startswith("/"):
