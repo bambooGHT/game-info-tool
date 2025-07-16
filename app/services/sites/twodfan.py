@@ -294,7 +294,10 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
             # 游戏介绍 - 从blockquote中获取
             blockquote = soup.select_one("blockquote")
             if blockquote:
-                game_data["introduction"] = blockquote.get_text().strip()
+                game_data["introduction"] = blockquote.get_text(
+                    separator="\n",
+                    strip=True,
+                ).strip()
 
         except Exception as e:
             logger.error(f"Error parsing detail page: {e}")
