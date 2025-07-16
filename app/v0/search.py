@@ -1,6 +1,8 @@
 from datetime import datetime
+from typing import Generic, TypeVar
 
 from fastapi import APIRouter
+from pydantic import BaseModel
 from returns.result import Failure, Success
 
 from app.services.sites.twodfan import twodfan_client
@@ -8,8 +10,33 @@ from app.services.sites.twodfan import twodfan_client
 router = APIRouter()
 
 
+T = TypeVar("T")
+
+
+class SearchResponse(BaseModel, Generic[T]):
+    success: bool
+    message: str
+    data: list[T]
+    timestamp: str
+
+    @classmethod
+    def ok(cls, data: list[T]) -> "SearchResponse[T]":
+        return cls(
+            success=True, message="ok", data=data, timestamp=datetime.now().isoformat()
+        )
+
+    @classmethod
+    def failure(cls, message: str) -> "SearchResponse[T]":
+        return cls(
+            success=False,
+            message=message,
+            data=[],
+            timestamp=datetime.now().isoformat(),
+        )
+
+
 @router.get("/search", summary="搜索游戏")
-async def search(query: str, site: str = "2dfan"):
+async def search(query: str, site: str = "2dfan") -> SearchResponse[object]:
     """搜索游戏
 
     Args:
@@ -25,23 +52,10 @@ async def search(query: str, site: str = "2dfan"):
                 match search_result:
                     case Success(data):
                         data = [item.model_dump() for item in data]
-                        return {
-                            "success": True,
-                            "message": "ok",
-                            "data": data,
-                            "timestamp": datetime.now().isoformat(),
-                        }
+                        return SearchResponse.ok(data)
                     case Failure(exception):
-                        return {
-                            "success": False,
-                            "message": str(exception),
-                            "data": [],
-                            "timestamp": datetime.now().isoformat(),
-                        }
+                        return SearchResponse.failure(str(exception))
         case _:
-            return {
-                "success": False,
-                "message": "不支持的站点",
-                "data": [],
-                "timestamp": datetime.now().isoformat(),
-            }
+            return SearchResponse.failure("不支持的站点")
+
+    return SearchResponse.failure("不支持的站点")
