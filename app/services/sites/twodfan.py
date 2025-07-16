@@ -32,14 +32,12 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
         timeout = kwargs.get("timeout", 30)
         max_retries = kwargs.get("max_retries", 3)
         request_delay = kwargs.get("request_delay", (0.5, 2.0))
-        respect_robots_txt = kwargs.get("respect_robots_txt", True)
 
         super().__init__(
             base_url="https://2dfan.com",
             timeout=timeout,
             max_retries=max_retries,
             request_delay=request_delay,
-            respect_robots_txt=respect_robots_txt,
         )
 
     async def search(self, query: str, **kwargs) -> Result[List[TwoDFanModel], str]:
@@ -294,19 +292,9 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
                 game_data["image"] = src
 
             # 游戏介绍 - 从blockquote中获取
-            intro_elem = soup.select_one("blockquote p")
-            if intro_elem:
-                # 获取所有p标签的文本内容
-                intro_paragraphs = soup.select("blockquote p")
-                intro_texts = []
-                for p in intro_paragraphs:
-                    text = p.get_text().strip()
-                    if text and len(text) > 10:  # 过滤掉太短的文本
-                        logger.info(f"intro_texts: {text}")
-                        intro_texts.append(text)
-
-                if intro_texts:
-                    game_data["introduction"] = "\n".join(intro_texts)
+            blockquote = soup.select_one("blockquote")
+            if blockquote:
+                game_data["introduction"] = blockquote.get_text().strip()
 
         except Exception as e:
             logger.error(f"Error parsing detail page: {e}")

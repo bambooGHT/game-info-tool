@@ -23,8 +23,8 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
         base_url: str,
         timeout: int = 30,
         max_retries: int = 3,
-        request_delay: tuple[float, float] = (1.0, 3.0),
-        respect_robots_txt: bool = True,
+        request_delay: tuple[float, float] = (0.5, 1.0),
+        respect_robots_txt: bool = False,
         user_agents: Optional[List[str]] = None,
     ):
         """初始化爬虫基类
