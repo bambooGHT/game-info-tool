@@ -129,6 +129,30 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
             logger.error(f"Error getting detail from 2dfan: {e}")
             return Failure(str(e))
 
+    async def get_image(self, url: str, **kwargs) -> Result[httpx.Response, str]:
+        """获取图片
+
+        Args:
+            url: 图片链接
+            **kwargs: 其他参数
+        """
+
+        try:
+            response = await self._get_image(url, **kwargs)
+
+            match response:
+                case Success(value):
+                    return Success(value)
+                case Failure(e):
+                    logger.error(f"Error getting image from 2dfan: {e}")
+                    return Failure(str(e))
+
+            return Failure("未知错误")
+
+        except Exception as e:
+            logger.error(f"Error getting image from 2dfan: {e}")
+            return Failure(str(e))
+
     async def _get_search_html(
         self, query: str, **kwargs
     ) -> Result[httpx.Response, Exception]:
@@ -140,6 +164,10 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
         self, url: str, **kwargs
     ) -> Result[httpx.Response, Exception]:
         return await self._make_request(url, method="GET")
+
+    async def _get_image(self, url: str, **kwargs) -> Result[httpx.Response, Exception]:
+        referer = "https://2dfan.com"
+        return await self._make_request(url, method="GET", headers={"Referer": referer})
 
     async def parse_search_results(
         self, content: str
