@@ -9,12 +9,13 @@
     "build": "vite build",
     "preview": "vite preview"
   },
-  "keywords": [ ],
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.6.3",
   "dependencies": {
     "@vitejs/plugin-vue": "^6.0.0",
+    "game-info-tool": "link:",
     "vite": "^7.0.4",
     "vue": "^3.5.17"
   }
