@@ -1,0 +1,117 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+ul,
+ol,
+li,
+nav {
+  list-style: none;
+}
+
+a,
+a:link,
+a:visited,
+a:hover,
+a:active {
+  text-decoration: none;
+  color: inherit;
+}
+
+:root {
+  font-size: 10px;
+}
+
+body {
+  margin: 0 auto;
+  max-width: 1200px;
+  overflow-x: hidden;
+  font-size: 1.2rem;
+}
+
+.app {
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+textarea {
+  height: 15rem;
+}
+
+input,
+textarea {
+  outline: 1px solid transparent;
+  border: 1px solid rgb(192, 192, 192);
+  border-radius: 0.5rem;
+  padding: 5px;
+  font-size: 15px;
+  box-sizing: border-box;
+  width: 30rem;
+  transition: .15s;
+}
+
+input:focus {
+  border-color: transparent;
+  outline: 1px solid #0033dc8c;
+}
+
+
+svg {
+  width: 25px;
+  height: 25px;
+  vertical-align: middle;
+  cursor: pointer;
+  margin: 0 0.5rem;
+
+  path {
+    fill: rgba(0, 64, 255, 0.575);
+  }
+}
+
+button {
+  border-radius: 0.4rem;
+  padding: 0 6px;
+  height: 30px;
+  line-height: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  box-sizing: border-box;
+  width: max-content;
+}
+
+.button1 {
+  border: 1px solid #0034dc72;
+  color: #002bb7c5 !important;
+  background-color: transparent;
+}
+
+.button2 {
+  background-color: #0000330f;
+  color: rgb(28, 32, 36);
+  border: none;
+}
+
+svg:active path {
+  fill: rgb(0, 64, 255) !important;
+}
+
+.button1:active {
+  background-color: rgba(0, 64, 255, 0.1) !important;
+}
+
+.button2:active {
+  background-color: #0009321f !important;
+}
+
+@media (hover: hover) {
+  .button1:hover {
+    background-color: rgba(0, 64, 255, 0.04);
+  }
+
+  .button2:hover {
+    background-color: #00002d17;
+  }
+}
