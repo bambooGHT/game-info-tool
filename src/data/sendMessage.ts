@@ -8,6 +8,7 @@ export const sendRecord = (() => {
 
 export const saveSendRecord = (data: SendRecord) => {
   sendRecord.unshift(data);
+  if (sendRecord.length > 300) sendRecord.pop();
   localStorage.setItem("sendRecord", JSON.stringify(sendRecord));
 };
 

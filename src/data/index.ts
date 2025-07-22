@@ -47,7 +47,6 @@ export const resetData = () => {
     gamePreviewInfoList[item] = {} as any;
     gameInfoPreprocessData[item] = {};
   });
-
 };
 
 export const getGamePreviewInfo = async (gameName: string, reqSite?: GameInfoSourceSiteNames) => {
@@ -65,6 +64,7 @@ export const getGamePreviewInfo = async (gameName: string, reqSite?: GameInfoSou
   };
 
   if (imageCorsBlockedSources.includes(reqSite)) {
+    // 需要修改
     data.images = [(data as any).image].map(image => `${GAME_INFO_API}/image?url=${image}`);
   }
 
@@ -74,7 +74,7 @@ export const getGamePreviewInfo = async (gameName: string, reqSite?: GameInfoSou
 };
 
 const preprocessGameInfoData = (info: GamePreviewInfoItem) => {
-  const { platform, gameTags, pornTags, langTags = [], ...rest } = info;
+  const { platform, gameTags, pornTags, langTags = [], images, ...rest } = info;
   const { langTags: rawLang,
     storyTags: rawStory,
     gameTags: rawGame,
@@ -94,10 +94,12 @@ const preprocessGameInfoData = (info: GamePreviewInfoItem) => {
   const pornTagList = [...tags, ...pornTags];
   const storySet = filterTags(rawStory, [...pornTags, ...gameTags]);
   const gameSet = filterTags(rawGame, gameTags);
+  const imgs = images.map(p => ({ has_spoiler: false, url: p }));
 
   return {
     gameInfo: {
       ...rest,
+      images: imgs,
       platform: new Set(platform),
       gameTags: gameSet,
       pornTags: new Set(pornTagList),
@@ -115,16 +117,19 @@ const preprocessGameInfoData = (info: GamePreviewInfoItem) => {
 };
 
 export const addCurrentGameImage = (img: string) => {
-  if (!currentGameInfo.images.includes(img)) {
-    currentGameInfo.images.push(img);
-  }
+  if (currentGameInfo.images.findIndex(item => item.url === img) !== -1) return;
+  currentGameInfo.images.push({ has_spoiler: false, url: img });
 };
 
 export const deleteCurrentGameImage = (img: string) => {
   if (currentGameInfo.images.length === 1) return;
 
-  const index = currentGameInfo.images.indexOf(img);
+  const index = currentGameInfo.images.findIndex(item => item.url === img);
   if (index !== -1) currentGameInfo.images.splice(index, 1);
+};
+
+export const updateCurrentGameImageHasSpoiler = (img: { url: string, has_spoiler: boolean; }) => {
+  img.has_spoiler = !img.has_spoiler;
 };
 
 export const replaceCurrentGameInfo = (siteName: GameInfoSourceSiteNames) => {

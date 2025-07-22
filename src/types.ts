@@ -35,7 +35,7 @@ export interface GamePreviewInfoItem {
   introduction: string;
 }
 
-export interface GameInfo extends Omit<GamePreviewInfoItem, "sourceUrl" | "platform" | "gameTags" | "pornTags" | "langTags"> {
+export interface GameInfo extends Omit<GamePreviewInfoItem, "images" | "sourceUrl" | "platform" | "gameTags" | "pornTags" | "langTags"> {
   platform: Set<string>;
   gameTags: Set<string>;
   pornTags: Set<string>;
@@ -44,6 +44,7 @@ export interface GameInfo extends Omit<GamePreviewInfoItem, "sourceUrl" | "platf
   /** 下载Url */
   downloadUrl?: string;
   orthrText?: string;
+  images: { has_spoiler: boolean, url: string; }[];
 }
 
 export interface GameTags extends Pick<GameInfo, "platform" | "gameTags" | "pornTags" | "langTags" | "storyTags"> { }

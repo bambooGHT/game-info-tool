@@ -125,10 +125,16 @@ img {
 
   .game-info-image {
     display: flex;
-    height: 100px;
+    height: 110px;
     img {
       height: 100px;
       margin-right: 5px;
+    }
+    div {
+      text-align: center;
+      input {
+        margin-top: 0.5rem;
+      }
     }
   }
 
@@ -164,17 +170,17 @@ img {
     }
   }
 
- .record {
-  height: auto;
-  overflow-y: auto;
-  margin-bottom: 1rem;
+  .record {
+    height: auto;
+    overflow-y: auto;
+    margin-bottom: 1rem;
     height: 430px;
- }
-  .record li{
+  }
+  .record li {
     position: relative;
     margin: 2rem 0 2rem 0;
     padding-bottom: 0.5rem;
-    div{
+    div {
       height: 2.3rem;
     }
     &:not(:last-child):after {
@@ -266,14 +272,14 @@ img {
 }
 
 .tag-list {
-  height: 204px;
+  height: 206px;
   overflow-y: auto;
   display: flex;
   flex-wrap: wrap;
-
+  align-content: flex-start;
   li {
     font-size: 12px;
-    height: max-content;
+    height: min-content;
     padding: 0px 5px;
     margin: 4px 3px;
     cursor: pointer;

@@ -117,11 +117,17 @@ img {
 }
 .game-info .game-info-image {
   display: flex;
-  height: 100px;
+  height: 110px;
 }
 .game-info .game-info-image img {
   height: 100px;
   margin-right: 5px;
+}
+.game-info .game-info-image div {
+  text-align: center;
+}
+.game-info .game-info-image div input {
+  margin-top: 0.5rem;
 }
 .game-info .game-info-list-box {
   display: grid;
@@ -255,15 +261,16 @@ img {
 }
 
 .tag-list {
-  height: 204px;
+  height: 206px;
   overflow-y: auto;
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
 }
 .tag-list li {
   font-size: 12px;
-  height: -moz-max-content;
-  height: max-content;
+  height: -moz-min-content;
+  height: min-content;
   padding: 0px 5px;
   margin: 4px 3px;
   cursor: pointer;

@@ -1,6 +1,6 @@
 import type { TelegramData } from "@/types";
 
-type Info = { images: string[], message: string; messageIds?: (string | number)[]; };
+type Info = { images: { has_spoiler: boolean; url: string; }[], message: string; messageIds?: (string | number)[]; };
 type MessageParams = { type: string; media: string; caption?: string; parse_mode?: string; };
 const TELEGRAM_API = `https://api.telegram.org/bot`;
 
@@ -13,9 +13,10 @@ export const sendTgMessage = async (telegramData: TelegramData, info: Info) => {
     return sendPhoto(telegramData, info);
   }
 
-  const media: MessageParams[] = info.images.map((image) => ({
+  const media: MessageParams[] = info.images.map((item) => ({
     type: "photo",
-    media: image
+    media: item.url,
+    has_spoiler: item.has_spoiler
   }));
   media[0].caption = info.message;
   media[0].parse_mode = "MarkdownV2";
@@ -29,7 +30,8 @@ export const sendTgMessage = async (telegramData: TelegramData, info: Info) => {
 const sendPhoto = async (telegramData: TelegramData, info: Info) => {
   const body = {
     chat_id: telegramData.chatId,
-    photo: info.images[0],
+    photo: info.images[0].url,
+    has_spoiler: info.images[0].has_spoiler,
     caption: info.message,
     parse_mode: "MarkdownV2",
   };

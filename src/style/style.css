@@ -41,7 +41,7 @@ textarea {
   height: 15rem;
 }
 
-input,
+input:not([type="checkbox"]),
 textarea {
   outline: 1px solid transparent;
   border: 1px solid rgb(192, 192, 192);
@@ -53,7 +53,7 @@ textarea {
   transition: .15s;
 }
 
-input:focus {
+input:not([type="checkbox"]):focus {
   border-color: transparent;
   outline: 1px solid #0033dc8c;
 }
@@ -114,4 +114,31 @@ svg:active path {
   .button2:hover {
     background-color: #00002d17;
   }
+}
+
+input[type="checkbox"] {
+  appearance: none;
+  width: 17px;
+  height: 17px;
+  border: 2px solid rgba(0, 64, 255, 0.4);
+  background-color: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+input[type="checkbox"]:checked {
+  background-color: rgba(0, 64, 255, 0.4);
+  border: 2px solid transparent;
+}
+
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }

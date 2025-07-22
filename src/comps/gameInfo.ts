@@ -1,4 +1,4 @@
-import { currentGameInfo, currentGameTags, deleteCurrentGameImage, telegramData, updateTelegramDataAt, addCurrentGameInfoTagAt, deleteCurrentGameInfoTagAt, updateCurrentGameInfoAt, telegramMessageIds } from "@/data";
+import { currentGameInfo, currentGameTags, deleteCurrentGameImage, telegramData, updateTelegramDataAt, addCurrentGameInfoTagAt, deleteCurrentGameInfoTagAt, updateCurrentGameInfoAt, telegramMessageIds, updateCurrentGameImageHasSpoiler } from "@/data";
 import { sendMessage, sendRecord } from "@/data/sendMessage";
 import type { GameTags } from "@/types";
 import { defineComponent, h, ref, toRaw } from "vue";
@@ -21,8 +21,12 @@ export const gameInfoBox = () => {
 
 const imagesEl = () => {
   const title = h("div", { class: "title", style: "margin: 5px 0;" }, "图片列表");
-  const imageList = h("div", { class: "game-info-image" }, currentGameInfo.images.map(image =>
-    h("img", { src: image, onClick: () => deleteCurrentGameImage(image) })));
+  const imageList = h("div", { class: "game-info-image" }, currentGameInfo.images.map(item => {
+    return h("div", [
+      h("img", { src: item.url, onClick: () => deleteCurrentGameImage(item.url) }),
+      h("input", { type: "checkbox", checked: item.has_spoiler, onChange: () => updateCurrentGameImageHasSpoiler(item) })
+    ]);
+  }));
   return h("div", [title, imageList]);
 };
 
@@ -39,7 +43,7 @@ const infoListEl = {
       h("ul", { class: "tag-list" }, [...currentGameInfo[tagType.value]].map(tag =>
         h("li", { class: "button1", onClick: () => deleteCurrentGameInfoTagAt(tagType.value, tag) }, "#" + tag))
       ),
-      h("hr", { style: "width: 100%; margin: 10px 0;background-color: #e5e7eb;height: 2px;" }),
+      h("hr", { style: "width: 100%; margin: 10px 0;border: 2px solid #e5e7eb" }),
       h("ul", { class: "tag-list" }, [...currentGameTags[tagType.value]].map(tag =>
         h("li", { class: "button1", onClick: () => addCurrentGameInfoTagAt(tagType.value, tag) }, "#" + tag))
       )
