@@ -33,6 +33,7 @@ class TestDLSiteHtmlParse:
                                 value.images[0]
                                 == "https://img.dlsite.jp/modpub/images2/work/professional/VJ015000/VJ014408_img_main.jpg"
                             )
+                            assert len(value.images) > 1
                             assert value.brand == "ぱれっと"
                             assert value.releaseDate == "2021-04-23"
                             for item in [
@@ -43,8 +44,9 @@ class TestDLSiteHtmlParse:
                                 "学校/学园",
                                 "推理",
                             ]:
+                                assert item in value.categoryTags
+                            for item in ["冒险"]:
                                 assert item in value.gameTags
-                            assert value.categoryTags == []
                             assert "日语" in value.langTags
                             assert value.sourceUrl.endswith(
                                 "/work/=/product_id/VJ014408.html"
@@ -76,6 +78,7 @@ class TestDLSiteHtmlParse:
                                 value.images[0]
                                 == "https://img.dlsite.jp/modpub/images2/work/doujin/RJ01390000/RJ01389782_img_main.jpg"
                             )
+                            assert len(value.images) > 1
                             assert value.brand == "しーぶるそふと"
                             assert value.releaseDate == "2025-06-12"
                             for item in [
@@ -87,8 +90,9 @@ class TestDLSiteHtmlParse:
                                 "拘束",
                                 "巨乳/爆乳",
                             ]:
+                                assert item in value.categoryTags
+                            for item in ["动作"]:
                                 assert item in value.gameTags
-                            assert value.categoryTags == []
                             for item in [
                                 "日语",
                                 "英语",
@@ -127,6 +131,7 @@ class TestDLSiteHtmlParse:
                                 value.images[0]
                                 == "https://img.dlsite.jp/modpub/images2/work/professional/VJ01003000/VJ01002448_img_main.jpg"
                             )
+                            assert len(value.images) > 1
                             assert value.brand == "ωstar / Seikei Production"
                             assert value.releaseDate == "2024-06-28"
                             for item in [
@@ -138,8 +143,9 @@ class TestDLSiteHtmlParse:
                                 "长发",
                                 "巨乳/爆乳",
                             ]:
+                                assert item in value.categoryTags
+                            for item in ["冒险"]:
                                 assert item in value.gameTags
-                            assert value.categoryTags == []
                             for item in [
                                 "日语",
                                 "简体中文",

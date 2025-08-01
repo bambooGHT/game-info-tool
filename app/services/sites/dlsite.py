@@ -240,7 +240,7 @@ class DLSiteCrawler(AsyncBaseCrawler[ResponseModel]):
                 for link in genre_links:
                     tag_name = link.text.strip()
                     if tag_name:
-                        game_data.gameTags.append(tag_name)
+                        game_data.categoryTags.append(tag_name)
 
             # 语言标签 - 从作品形式行中获取
             outline_table = soup.select_one("table#work_outline")
@@ -299,14 +299,19 @@ class DLSiteCrawler(AsyncBaseCrawler[ResponseModel]):
                                     game_data.langTags.append(mapped_lang)
                         break
 
-            # 封面图 - 从产品滑块中获取主图
-            main_img = soup.select_one("img[itemprop='image']")
-            if main_img and "srcset" in main_img.attrs:
-                src = main_img["srcset"]
-                if isinstance(src, str):
-                    if src.startswith("//"):
-                        src = "https:" + src
-                    game_data.images.append(src)
+            # 游戏截图 - 按 product-slider-data 顺序全部抓取
+            slider_div = soup.select_one("div.product-slider-data")
+            if slider_div:
+                img_divs = slider_div.select("div[data-src]")
+                for div in img_divs:
+                    src = div.get("data-src", "")
+                    if src:
+                        if src.startswith("//"):
+                            src = "https:" + src
+                        game_data.images.append(src)
+
+            # 作品形式
+            game_data.gameTags.append(soup.select_one("div.work_genre").text.strip())
 
             # 游戏介绍 - 从作品内容区域获取
             description_div = soup.select_one("div[itemprop='description']")
