@@ -104,7 +104,7 @@ class DLSiteCrawler(AsyncBaseCrawler[ResponseModel]):
     async def _get_search_html(
         self, query: str, is_r18: bool = False, **kwargs
     ) -> Result[httpx.Response, Exception]:
-        keyword = f"keyword/{query}/"
+        keyword = f"keyword/{query.replace(' ', '+')}/"
         age_category = (
             "age_category[0]/general/"  # noqa: E501
             "age_category[1]/r15/"  # noqa: E501

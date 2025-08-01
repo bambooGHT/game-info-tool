@@ -130,3 +130,15 @@ class TestDLSiteHtmlParse:
                 assert value[0]["url"].endswith("/work/=/product_id/RJ284993.html")
             case Failure(_):
                 assert False, "Failed to test_app_search"
+
+    @pytest.mark.asyncio
+    async def test_search_0(self, crawler: DLSiteCrawler):
+        """测试搜索 HTML 解析"""
+        result = await self._search(crawler, "隐秘露出 真菜香的禁忌快感")
+        match result:
+            case Success(value):
+                assert len(value) >= 1
+                assert value[0]["name"] == "【多语言】隐秘露出 真菜香的禁忌快感"
+                assert value[0]["url"].endswith("/work/=/product_id/RJ01389782.html")
+            case Failure(_):
+                assert False, "Failed to test_search_0"
