@@ -310,8 +310,23 @@ class DLSiteCrawler(AsyncBaseCrawler[ResponseModel]):
                             src = "https:" + src
                         game_data.images.append(src)
 
-            # 作品形式
-            game_data.gameTags.append(soup.select_one("div.work_genre").text.strip())
+            # 作品形式 - 逐项拆分
+            work_genre_div = soup.select_one("div#category_type") or soup.select_one(
+                "div.work_genre"
+            )
+            if work_genre_div:
+                # span 标签中的子项，例如 冒险 / 有声音 / 有音乐 / 有动画
+                for span in work_genre_div.select("span"):
+                    tag = span.text.strip()
+                    if tag and tag not in game_data.gameTags:
+                        game_data.gameTags.append(tag)
+
+                # 斜杠后的附加文本（如 '新生超自然官能AVG'）
+                full_text = work_genre_div.get_text(" ", strip=True)
+                if "/" in full_text:
+                    after_slash = full_text.split("/")[-1].strip()
+                    if after_slash and after_slash not in game_data.gameTags:
+                        game_data.gameTags.append(after_slash)
 
             # 游戏介绍 - 从作品内容区域获取
             description_div = soup.select_one("div[itemprop='description']")
