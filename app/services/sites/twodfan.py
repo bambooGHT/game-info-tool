@@ -1,30 +1,16 @@
-from typing import Any, Dict, List
+import re
+from typing import Dict, List
 
 import httpx
 from bs4 import BeautifulSoup
 from loguru import logger
-from pydantic import BaseModel, Field
 from returns.result import Failure, Result, Success
 
 from app.services.base import AsyncBaseCrawler
+from app.services.models import ResponseModel
 
 
-class TwoDFanModel(BaseModel):
-    """2dfan数据模型"""
-
-    name: str
-    translateName: str = ""
-    image: str = ""
-    brand: str = ""
-    releaseDate: str = ""
-    platform: List[str] = Field(default_factory=list)
-    gameTags: List[str] = Field(default_factory=list)
-    pornTags: List[str] = Field(default_factory=list)
-    sourceUrl: str
-    introduction: str = ""
-
-
-class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
+class TwoDFanCrawler(AsyncBaseCrawler[ResponseModel]):
     """2dfan网站爬虫实现"""
 
     def __init__(self, **kwargs):
@@ -40,7 +26,7 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
             request_delay=request_delay,
         )
 
-    async def search(self, query: str, **kwargs) -> Result[List[TwoDFanModel], str]:
+    async def search(self, query: str, **kwargs) -> Result[List[ResponseModel], str]:
         """搜索2dfan游戏
 
         Args:
@@ -48,7 +34,7 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
             **kwargs: 其他搜索参数，如page
 
         Returns:
-            Result[List[TwoDFanModel], str]: 游戏信息列表
+            Result[List[ResponseModel], str]: 游戏信息列表
         """
         try:
             response = await self._get_search_html(query, **kwargs)
@@ -82,7 +68,7 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
             logger.error(f"Error searching 2dfan: {e}")
             return Failure(str(e))
 
-    async def get_detail(self, url: str, **kwargs) -> Result[TwoDFanModel, str]:
+    async def get_detail(self, url: str, **kwargs) -> Result[ResponseModel, str]:
         """获取游戏详情
 
         Args:
@@ -90,7 +76,7 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
             **kwargs: 其他参数
 
         Returns:
-            Result[TwoDFanModel, str]: 游戏详细信息
+            Result[ResponseModel, str]: 游戏详细信息
         """
         try:
             response = await self._get_detail_html(url, **kwargs)
@@ -100,20 +86,7 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
                     game_data = await self.parse_detail_page(value.text, url)
                     match game_data:
                         case Success(data):
-                            return Success(
-                                TwoDFanModel(
-                                    name=data.get("name", ""),
-                                    translateName=data.get("translateName", ""),
-                                    image=data.get("image", ""),
-                                    brand=data.get("brand", ""),
-                                    releaseDate=data.get("releaseDate", ""),
-                                    platform=data.get("platform", []),
-                                    gameTags=data.get("gameTags", []),
-                                    pornTags=data.get("pornTags", []),
-                                    sourceUrl=url or "",
-                                    introduction=data.get("introduction", ""),
-                                )
-                            )
+                            return Success(data)
                         case Failure(e):
                             logger.error(f"Error parsing detail page: {e}")
                             return Failure(str(e))
@@ -205,7 +178,7 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
 
     async def parse_detail_page(
         self, content: str, url: str
-    ) -> Result[Dict[str, Any], str]:
+    ) -> Result[ResponseModel, str]:
         """解析详情页面
 
         Args:
@@ -215,18 +188,8 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
         Returns:
             Result[Dict[str, Any], str]: 解析后的详情数据
         """
-        game_data = {
-            "name": "",
-            "translateName": "",
-            "image": "",
-            "brand": "",
-            "releaseDate": "",
-            "platform": [],
-            "gameTags": [],
-            "pornTags": [],
-            "sourceUrl": url,
-            "introduction": "",
-        }
+        game_data = ResponseModel()
+        game_data.sourceUrl = url
 
         try:
             soup = BeautifulSoup(content, "html.parser")
@@ -237,7 +200,7 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
                 title_text = title_elem.text.strip()
                 # 从标题中提取游戏名称，格式如："戦女神VERITA_战女神VERITA_2DFan"
                 if "_" in title_text:
-                    game_data["name"] = title_text.split("_")[0].strip()
+                    game_data.name = title_text.split("_")[0].strip()
 
             # 解析游戏信息标签
             tag_elements = soup.select("p.tags")
@@ -249,13 +212,13 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
                 if "又名：" in text:
                     translate_span = tag_elem.select_one("span.muted")
                     if translate_span:
-                        game_data["translateName"] = translate_span.text.strip()
+                        game_data.translateName = translate_span.text.strip()
 
                 # 品牌
                 elif "品牌：" in text:
                     brand_link = tag_elem.select_one("a")
                     if brand_link:
-                        game_data["brand"] = brand_link.text.strip()
+                        game_data.brand = brand_link.text.strip()
 
                 # 发售日期
                 elif "发售日期：" in text:
@@ -264,11 +227,9 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
                         text.replace("品牌：", "").replace("发售日期：", "").strip()
                     )
                     # 使用正则表达式提取日期
-                    import re
-
                     date_match = re.search(r"\d{4}-\d{2}-\d{2}", date_text)
                     if date_match:
-                        game_data["releaseDate"] = date_match.group()
+                        game_data.releaseDate = date_match.group()
 
             # 游戏标签 - 从侧边栏的常用标签区域获取
             tags_section = soup.select_one("#sidebar .block-content.tags")
@@ -277,7 +238,7 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
                 for link in tag_links:
                     tag_name = link.text.strip()
                     if tag_name:
-                        game_data["gameTags"].append(tag_name)
+                        game_data.categoryTags.append(tag_name)
 
             # 封面图 - 查找游戏封面
             image_elem = soup.select_one(
@@ -289,12 +250,12 @@ class TwoDFanCrawler(AsyncBaseCrawler[TwoDFanModel]):
                     src = "https:" + src
                 elif src.startswith("/"):
                     src = "https://img.achost.top" + src
-                game_data["image"] = src
+                game_data.images = [src]
 
             # 游戏介绍 - 从blockquote中获取
             blockquote = soup.select_one("blockquote")
             if blockquote:
-                game_data["introduction"] = blockquote.get_text(
+                game_data.introduction = blockquote.get_text(
                     separator="\n",
                     strip=True,
                 ).strip()

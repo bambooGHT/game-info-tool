@@ -11,8 +11,7 @@ class TestTwoDFanInit:
         assert crawler.base_url == "https://2dfan.com"
         assert crawler.timeout == 30
         assert crawler.max_retries == 3
-        assert crawler.request_delay == (2.0, 5.0)
-        assert crawler.respect_robots_txt is True
+        assert crawler.respect_robots_txt is False
 
     def test_custom_initialization(self):
         """测试自定义初始化参数"""

@@ -62,7 +62,7 @@ class TestTwoDFanHtmlParse:
                                 "汉化",
                             ]:
                                 assert item in value["gameTags"]
-                            assert value["pornTags"] == []
+                            assert value["categoryTags"] == []
                             assert (
                                 value["sourceUrl"] == "https://2dfan.com/subjects/1006"
                             )
