@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from returns.result import Failure, Success
 
+from app.services.models import ResponseModel
 from app.services.sites.dlsite import dlsite_client
 from app.services.sites.twodfan import twodfan_client
 
@@ -37,7 +38,7 @@ class SearchResponse(BaseModel, Generic[T]):
 
 
 @router.get("/search", summary="搜索游戏")
-async def search(query: str, site: str = "2dfan") -> SearchResponse[object]:
+async def search(query: str, site: str = "2dfan") -> SearchResponse[ResponseModel]:
     """搜索游戏
 
     Args:
@@ -52,7 +53,7 @@ async def search(query: str, site: str = "2dfan") -> SearchResponse[object]:
                 search_result = await twodfan_client.search(query)
                 match search_result:
                     case Success(data):
-                        data = [item.model_dump() for item in data]
+                        data = [item for item in data]
                         return SearchResponse.ok(data)
                     case Failure(exception):
                         return SearchResponse.failure(str(exception))
@@ -61,7 +62,7 @@ async def search(query: str, site: str = "2dfan") -> SearchResponse[object]:
                 search_result = await dlsite_client.search(query)
                 match search_result:
                     case Success(data):
-                        data = [item.model_dump() for item in data]
+                        data = [item for item in data]
                         return SearchResponse.ok(data)
                     case Failure(exception):
                         return SearchResponse.failure(str(exception))
