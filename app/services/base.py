@@ -59,7 +59,7 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
         }
 
         # 初始化HTTP客户端
-        self.client = None
+        self.client: httpx.AsyncClient | None = None
         self._robots_parser = None
 
     async def __aenter__(self) -> AsyncBaseCrawler[T]:
@@ -132,7 +132,7 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
 
     async def _make_request(
         self, url: str, method: str = "GET", **kwargs
-    ) -> Result[httpx.Response, Exception]:
+    ) -> Result[httpx.Response, str]:
         """发送HTTP请求，包含重试和延迟机制
 
         Args:
@@ -147,12 +147,10 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
             httpx.HTTPError: HTTP请求错误
         """
         if not self.client:
-            return Failure(
-                RuntimeError("HTTP client not initialized. Use async with context.")
-            )
+            return Failure("HTTP client not initialized. Use async with context.")
 
         if not self._can_fetch(url):
-            return Failure(PermissionError(f"Robots.txt disallows access to {url}"))
+            return Failure(f"Robots.txt disallows access to {url}")
 
         # 随机延迟请求
         delay = random.uniform(*self.request_delay)
@@ -171,7 +169,7 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
                 elif method.upper() == "POST":
                     response = await self.client.post(url, **kwargs)
                 else:
-                    raise ValueError(f"Unsupported HTTP method: {method}")
+                    return Failure(f"Unsupported HTTP method: {method}")
 
                 response.raise_for_status()
                 return Success(response)
@@ -179,74 +177,11 @@ class AsyncBaseCrawler(Generic[T], abc.ABC):
             except httpx.HTTPError as e:
                 if attempt == self.max_retries:
                     logger.error(f"Failed after {self.max_retries} attempts: {e}")
-                    return Failure(e)
+                    return Failure(str(e))
 
                 # 指数退避重试
                 wait_time = (2**attempt) + random.uniform(0, 1)
                 logger.warning(f"Request failed, retrying in {wait_time:.2f}s: {e}")
                 await asyncio.sleep(wait_time)
 
-        return Failure(httpx.HTTPError(f"Failed to make request to {url}"))
-
-    @abc.abstractmethod
-    async def _get_search_html(
-        self, query: str, **kwargs
-    ) -> Result[httpx.Response, Exception]:
-        pass
-
-    @abc.abstractmethod
-    async def _get_detail_html(
-        self, url: str, **kwargs
-    ) -> Result[httpx.Response, Exception]:
-        pass
-
-    @abc.abstractmethod
-    async def search(self, query: str, **kwargs) -> Result[List[T], str]:
-        """搜索页面爬取方法
-
-        Args:
-            query: 搜索关键词
-            **kwargs: 其他搜索参数
-
-        Returns:
-            Result[List[T], str]: 搜索结果列表
-        """
-        pass
-
-    @abc.abstractmethod
-    async def get_detail(self, url: str, **kwargs) -> Result[T, str]:
-        """详情页面爬取方法
-
-        Args:
-            url: 详情页URL
-            **kwargs: 其他参数
-
-        Returns:
-            Result[T, str]: 详情数据
-        """
-        pass
-
-    @abc.abstractmethod
-    async def parse_search_results(self, content: str) -> Result[Any, str]:
-        """解析搜索结果页面
-
-        Args:
-            content: 页面内容
-
-        Returns:
-            Result[Any, str]: 解析后的搜索结果
-        """
-        pass
-
-    @abc.abstractmethod
-    async def parse_detail_page(self, content: str, url: str) -> Result[Any, str]:
-        """解析详情页面
-
-        Args:
-            content: 页面内容
-            url: 页面URL
-
-        Returns:
-            Result[Any, str]: 解析后的详情数据
-        """
-        pass
+        return Failure(f"Failed to make request to {url}")

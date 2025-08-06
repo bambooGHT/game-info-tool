@@ -1,65 +1,16 @@
 import pytest
 from returns.result import Failure, Result, Success
 
-from app.services.sites.dlsite import DLSiteCrawler
+from app.services.sites.dlsite import dlsite_search
 
 
 class TestDLSiteHtmlParse:
     """测试 DLSite HTML 解析"""
 
-    @pytest.fixture
-    def crawler(self):
-        """创建并初始化 crawler"""
-        return DLSiteCrawler()
-
-    async def _search(
-        self, crawler: DLSiteCrawler, query: str
-    ) -> Result[list[dict[str, str]], None]:
-        """测试搜索"""
-        async with crawler:
-            wrapped_safe_html = await crawler._get_search_html(query, False)
-            match wrapped_safe_html:
-                case Failure(_):
-                    return Failure(None)
-                case Success(safe_html):
-                    wrapped_safe_parse_result = await crawler.parse_search_results(
-                        safe_html.text
-                    )
-                    match wrapped_safe_parse_result:
-                        case Failure(_):
-                            return Failure(None)
-                        case Success(safe_parse_result):
-                            if len(safe_parse_result) == 0:
-                                wrapped_r18_safe_html = await crawler._get_search_html(
-                                    query, True
-                                )
-                                match wrapped_r18_safe_html:
-                                    case Failure(_):
-                                        return Failure(None)
-                                    case Success(r18_safe_html):
-                                        wrapped_r18_safe_parse_result = (
-                                            await crawler.parse_search_results(
-                                                r18_safe_html.text
-                                            )
-                                        )
-                                        match wrapped_r18_safe_parse_result:
-                                            case Failure(_):
-                                                return Failure(None)
-                                            case Success(r18_safe_parse_result):
-                                                if len(r18_safe_parse_result) == 0:
-                                                    return Failure(None)
-                                                else:
-                                                    return Success(
-                                                        r18_safe_parse_result
-                                                    )
-                            else:
-                                return Success(safe_parse_result)
-        return Failure(None)
-
     @pytest.mark.asyncio
-    async def test_maniax_search(self, crawler: DLSiteCrawler):
+    async def test_maniax_search(self):
         """测试搜索 HTML 解析"""
-        result = await self._search(crawler, "少女騎士リーリエの姫様救出物語")
+        result = await dlsite_search("少女騎士リーリエの姫様救出物語")
         match result:
             case Success(value):
                 assert len(value) >= 1
@@ -69,9 +20,9 @@ class TestDLSiteHtmlParse:
                 assert False, "Failed to test_maniax_search"
 
     @pytest.mark.asyncio
-    async def test_pro_search(self, crawler: DLSiteCrawler):
+    async def test_pro_search(self):
         """测试搜索 HTML 解析"""
-        result = await self._search(crawler, "多娜多娜")
+        result = await dlsite_search("多娜多娜")
         match result:
             case Success(value):
                 assert len(value) >= 1
@@ -84,9 +35,9 @@ class TestDLSiteHtmlParse:
                 assert False, "Failed to test_pro_search"
 
     @pytest.mark.asyncio
-    async def test_appx_search(self, crawler: DLSiteCrawler):
+    async def test_appx_search(self):
         """测试搜索 HTML 解析"""
-        result = await self._search(crawler, "【中英日】邂逅电车：始发站【APK版】")
+        result = await dlsite_search("【中英日】邂逅电车：始发站【APK版】")
         match result:
             case Success(value):
                 assert len(value) >= 1
@@ -96,9 +47,9 @@ class TestDLSiteHtmlParse:
                 assert False, "Failed to test_appx_search"
 
     @pytest.mark.asyncio
-    async def test_home_search(self, crawler: DLSiteCrawler):
+    async def test_home_search(self):
         """测试搜索 HTML 解析"""
-        result = await self._search(crawler, "幻想少女大戦")
+        result = await dlsite_search("幻想少女大戦")
         match result:
             case Success(value):
                 assert len(value) >= 1
@@ -108,9 +59,9 @@ class TestDLSiteHtmlParse:
                 assert False, "Failed to test_home_search"
 
     @pytest.mark.asyncio
-    async def test_soft_search(self, crawler: DLSiteCrawler):
+    async def test_soft_search(self):
         """测试搜索 HTML 解析"""
-        result = await self._search(crawler, "9-nine-")
+        result = await dlsite_search("9-nine-")
         match result:
             case Success(value):
                 assert len(value) >= 1
@@ -120,9 +71,9 @@ class TestDLSiteHtmlParse:
                 assert False, "Failed to test_soft_search"
 
     @pytest.mark.asyncio
-    async def test_app_search(self, crawler: DLSiteCrawler):
+    async def test_app_search(self):
         """测试搜索 HTML 解析"""
-        result = await self._search(crawler, "弹珠人勇者（apk版）")
+        result = await dlsite_search("弹珠人勇者（apk版）")
         match result:
             case Success(value):
                 assert len(value) >= 1
@@ -132,9 +83,9 @@ class TestDLSiteHtmlParse:
                 assert False, "Failed to test_app_search"
 
     @pytest.mark.asyncio
-    async def test_search_0(self, crawler: DLSiteCrawler):
+    async def test_search_0(self):
         """测试搜索 HTML 解析"""
-        result = await self._search(crawler, "隐秘露出 真菜香的禁忌快感")
+        result = await dlsite_search("隐秘露出 真菜香的禁忌快感")
         match result:
             case Success(value):
                 assert len(value) >= 1

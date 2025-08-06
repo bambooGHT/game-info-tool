@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from returns.result import Failure, Success
 
-from app.services.sites.twodfan import twodfan_client
+from app.services.sites.twodfan import twodfan_image
 
 router = APIRouter()
 
@@ -18,16 +18,15 @@ async def image(url: str) -> StreamingResponse:
         StreamingResponse: 图片流
     """
     if url.startswith("https://img.achost.top"):
-        async with twodfan_client:
-            image_result = await twodfan_client.get_image(url)
-            match image_result:
-                case Success(data):
-                    return StreamingResponse(
-                        data.iter_bytes(),
-                        media_type=data.headers.get("content-type", "image/jpeg"),
-                        headers={"Cache-Control": "public, max-age=3600"},
-                    )
-                case Failure(exception):
-                    return StreamingResponse(status_code=500, content=str(exception))
+        image_result = await twodfan_image(url)
+        match image_result:
+            case Success(data):
+                return StreamingResponse(
+                    data.iter_bytes(),
+                    media_type=data.headers.get("content-type", "image/jpeg"),
+                    headers={"Cache-Control": "public, max-age=3600"},
+                )
+            case Failure(exception):
+                return StreamingResponse(status_code=500, content=str(exception))
 
     return StreamingResponse(status_code=500, content="未知的图片域名地址")
