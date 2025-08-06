@@ -12,10 +12,4 @@ services:
     volumes:
       - ./app:/app/app
       - ./data:/app/data
-    command: [
-      "uv", "run", "fastapi",
-      "run", "app/main.py",
-      "--port", "8000",
-      "--workers", "1",
-    ]
-
+    command: ["./.venv/bin/uvicorn", "app.main:app", "--host", "::", "--port", "8000"]

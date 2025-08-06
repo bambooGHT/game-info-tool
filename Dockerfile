@@ -8,5 +8,4 @@ COPY . /app
 
 RUN uv sync --frozen --no-cache
 
-CMD ["uv", "run", "fastapi", "run", "app/main.py", "--host", "::", "--port", "8000"]
-
+CMD ["./.venv/bin/uvicorn", "app.main:app", "--host", "::", "--port", "8000"]
