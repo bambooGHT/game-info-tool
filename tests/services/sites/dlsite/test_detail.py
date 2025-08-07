@@ -1,8 +1,7 @@
 import pytest
 from returns.result import Failure, Success
 
-from app.services.sites.dlsite import dlsite_detail
-from app.services.sites.dlsite import dlsite_process
+from app.services.sites.dlsite import dlsite_detail, dlsite_process
 
 
 class TestDLSiteHtmlParse:
@@ -36,10 +35,8 @@ class TestDLSiteHtmlParse:
                     assert item in value.categoryTags
                 for item in ["ADV"]:
                     assert item in value.gameTags
-                assert "日语" in value.langTags
-                assert value.sourceUrl.endswith(
-                    "/work/=/product_id/VJ014408.html"
-                )
+                assert "日文" in value.langTags
+                assert value.sourceUrl.endswith("/work/=/product_id/VJ014408.html")
                 assert "ぜひお聞きください！" in value.introduction
             case Failure(exception):
                 assert False, f"Failed to get detail html: {exception}"
@@ -57,9 +54,7 @@ class TestDLSiteHtmlParse:
                         value.name
                         == "秘密のエクスポーズ バレないように露出するマナカさん"
                     )
-                    assert (
-                        value.translateName == "【多语言】隐秘露出 真菜香的禁忌快感"
-                    )
+                    assert value.translateName == "【多语言】隐秘露出 真菜香的禁忌快感"
                     assert (
                         value.images[0]
                         == "https://img.dlsite.jp/modpub/images2/work/doujin/RJ01390000/RJ01389782_img_main.jpg"
@@ -80,10 +75,10 @@ class TestDLSiteHtmlParse:
                     for item in ["ACN"]:
                         assert item in value.gameTags
                     for item in [
-                        "日语",
-                        "英语",
-                        "简体中文",
-                        "繁体中文",
+                        "日文",
+                        "英文",
+                        "简中",
+                        "繁中",
                         "韩语",
                     ]:
                         assert item in value.langTags
@@ -125,8 +120,8 @@ class TestDLSiteHtmlParse:
                     for item in ["ADV"]:
                         assert item in value.gameTags
                     for item in [
-                        "日语",
-                        "简体中文",
+                        "日文",
+                        "简中",
                     ]:
                         assert item in value.langTags
                     assert value.sourceUrl.endswith(

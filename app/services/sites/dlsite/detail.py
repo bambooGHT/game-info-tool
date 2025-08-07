@@ -159,13 +159,13 @@ class DLsiteDetail(AsyncBaseCrawler[ResponseModel]):
                         for span in lang_spans:
                             class_list = span.get("class", [])
                             if "icon_JPN" in class_list:
-                                language_tags.append("日语")
+                                language_tags.append("日文")
                             elif "icon_ENG" in class_list:
-                                language_tags.append("英语")
+                                language_tags.append("英文")
                             elif "icon_CHI_HANS" in class_list:
-                                language_tags.append("简体中文")
+                                language_tags.append("简中")
                             elif "icon_CHI_HANT" in class_list:
-                                language_tags.append("繁体中文")
+                                language_tags.append("繁中")
                             elif "icon_KO_KR" in class_list:
                                 language_tags.append("韩语")
                             elif "icon_SPA" in class_list:
@@ -176,13 +176,13 @@ class DLsiteDetail(AsyncBaseCrawler[ResponseModel]):
                                 language_tags.append("无语言")
                     break
         language_map = {
-            "日文": "日语",
-            "简体中文（官方翻译）": "简体中文",
-            "简体中文": "简体中文",
-            "繁体中文（官方翻译）": "繁体中文",
-            "繁体中文": "繁体中文",
-            "英语（官方翻译）": "英语",
-            "英文": "英语",
+            "日文": "日文",
+            "简体中文（官方翻译）": "简中",
+            "简体中文": "简中",
+            "繁体中文（官方翻译）": "繁中",
+            "繁体中文": "繁中",
+            "英语（官方翻译）": "英文",
+            "英文": "英文",
             "韩语（官方翻译）": "韩语",
             "韩文": "韩语",
             "西班牙语（官方翻译）": "西班牙语",
@@ -202,6 +202,8 @@ class DLsiteDetail(AsyncBaseCrawler[ResponseModel]):
                             if mapped_lang not in language_tags:
                                 language_tags.append(mapped_lang)
                     break
+        if "简中" not in language_tags and "繁中" not in language_tags:
+            language_tags.append("生肉")
         return language_tags
 
     def _parse_images(self, soup) -> list[str]:
