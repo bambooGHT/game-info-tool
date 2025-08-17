@@ -1,6 +1,6 @@
 {
   "name": "game-info-api",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "index.ts",
   "scripts": {
@@ -8,7 +8,7 @@
     "dev": "set GLOBAL_AGENT_HTTP_PROXY=http://127.0.0.1:10808 && tsx ./index.ts",
     "start": "tsx ./index.ts"
   },
-  "keywords": [ ],
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.6.3",
@@ -18,10 +18,10 @@
     "@types/jsdom": "^21.1.7",
     "axios": "^1.11.0",
     "fastify": "^5.4.0",
+    "game-info-api": "link:",
     "global-agent": "^3.0.0",
-    "got": "^14.4.7",
     "jsdom": "^26.1.0",
-    "socks-proxy-agent": "^8.0.5"
+    "tsx": "^4.20.4"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
