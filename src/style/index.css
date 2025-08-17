@@ -54,6 +54,19 @@ img {
   z-index: 100;
   display: block;
 }
+.game-preview-info-item > ul .sticky ul {
+  display: flex;
+  justify-content: center;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+.game-preview-info-item > ul .sticky ul li {
+  width: 28px;
+  margin: 0 0.4rem;
+  line-height: 23px;
+  font-size: 14px;
+}
 .game-preview-info-item > ul .sticky:nth-of-type(1) {
   top: 0;
 }
@@ -63,6 +76,10 @@ img {
 .game-preview-info-item > ul .sticky:nth-last-of-type(1) button {
   width: 7rem !important;
   margin: 0.4rem 0.8rem;
+}
+.game-preview-info-item > ul .not_result {
+  text-align: center;
+  font-size: 18px;
 }
 .game-preview-info-item > ul .load-button {
   position: absolute;
@@ -117,7 +134,8 @@ img {
 }
 .game-info .game-info-image {
   display: flex;
-  height: 110px;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 .game-info .game-info-image img {
   height: 100px;
@@ -164,7 +182,7 @@ img {
 }
 .game-info .config li > div:nth-child(1),
 .game-info .game-info-list li > div:nth-child(1) {
-  width: 7rem;
+  flex: 0 0 7rem;
 }
 .game-info .record {
   height: auto;

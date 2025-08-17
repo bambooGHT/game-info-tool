@@ -1,5 +1,5 @@
-import { sendTgMessage } from "@/service/telegramAPI";
-import type { GameInfo, SendRecord, TelegramData } from "@/types";
+import { sendTgMessage } from "@/services/telegramAPI";
+import type { GameInfo, SendRecord, ConfigData } from "@/types";
 
 export const sendRecord = (() => {
   const result: SendRecord[] = JSON.parse(localStorage.getItem("sendRecord") ?? "[]");
@@ -12,7 +12,7 @@ export const saveSendRecord = (data: SendRecord) => {
   localStorage.setItem("sendRecord", JSON.stringify(sendRecord));
 };
 
-export const sendMessage = (telegramData: TelegramData, gameInfo: GameInfo, messageIdStr: string) => {
+export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageIdStr: string) => {
   if (!Object.keys(gameInfo).length) return;
 
   const messageIds = messageIdStr ? messageIdStr.split(" ").map(p => p.trim()).filter(Boolean) : undefined;
@@ -20,32 +20,33 @@ export const sendMessage = (telegramData: TelegramData, gameInfo: GameInfo, mess
   const { translateName, name,
     releaseDate, images,
     platform, brand,
-    gameTags, pornTags,
-    langTags, storyTags,
+    gameTypeTags: gameTags, categoryTags,
+    langTags, storyTags, seriesName,
     orthrText = "", introduction, downloadUrl = ""
   } = gameInfo;
 
   const { introHead, introFolded } = splitIntroduction(introduction);
 
   const rows = [
-    "🎮" + translateName,
+    "🎮 " + translateName,
     name,
-    `\n🏭开发商 ${brand}`,
-    formatTags("🖥运行平台", platform),
-    formatTags("🌐语言", langTags),
-    formatTags("📓剧情分类", storyTags),
-    formatTags("🌟游戏类型", gameTags),
-    formatTags("🔞R18内容", pornTags),
+    `\n🏭开发商     #${brand}`,
+    formatTags("🖥运行平台 ", platform),
+    formatTags("🌐语言 ", langTags),
+    formatTags("📓剧情分类 ", storyTags),
+    formatTags("🌟游戏类型 ", gameTags),
+    formatTags("🏷︎内容分类 ", categoryTags),
     `🗓发售日期 ${releaseDate.replace(/(\d{4})-(\d{2})-(\d{2})/, "#$1年$2月 $3日")}`,
+    seriesName ? `系列名 #${seriesName}` : "",
     orthrText.trim() ? `\n${orthrText}` : "",
-    `\n📜 —————游戏介绍——————\n`,
+    introHead.length ? `\n📜 —————游戏介绍——————\n` : "",
     ...introHead
   ].filter(Boolean).join("\n");;
 
   const urlText = downloadUrl.trim() ? escapeMarkdownV2(`\n\n[下载地址](${downloadUrl})`) : "";
   const resultText = escapeMarkdownV2(rows) + introFolded + urlText;
 
-  sendTgMessage(telegramData, { images, message: resultText, messageIds }).then((res) => {
+  sendTgMessage(configData, { images, message: resultText, messageIds }).then((res) => {
     const ids = (Array.isArray(res) ? res : [res]).map((msg: { message_id: number; }) => msg.message_id);
     const time = new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-').slice(0, 15);
 
@@ -60,16 +61,31 @@ export const sendMessage = (telegramData: TelegramData, gameInfo: GameInfo, mess
 };
 
 const splitIntroduction = (introduction: string) => {
+  if (!introduction) {
+    return { introHead: [], introFolded: "" };
+  }
   if (introduction.length > 500) introduction = introduction.slice(0, 500) + "...";
+
   const introLines = introduction.split("\n").map(p => p.trim());
-  const introHead = introLines.splice(0, introLines.length >= 8 ? 4 : 8);
+  let introHead: string[] = [];
+  if (introLines.join("").length < 200) {
+    introHead = introLines.splice(0);
+  } else {
+    let size = 0;
+    let textIndex = 0;
+    while (textIndex < 4 && textIndex < introLines.length && size < 200) {
+      size += introLines[textIndex++].length;
+    }
+    if (textIndex < introLines.length) introHead = introLines.splice(0, textIndex);
+  }
+
   const introFolded = introLines.length ? "\n" + foldText(escapeMarkdownV2(introLines.join("\n"))) : "";
 
   return { introHead, introFolded };
 };
 
 const formatTags = (title: string, set: Set<string>) =>
-  set.size ? `${title} ${[...set].map(tag => `#${tag}`).join(" ")}` : "";
+  set.size ? `${title}${[...set].map(tag => `#${tag}`).join(" ")}` : "";
 
 function escapeMarkdownV2(text: string) {
   const reservedChars = ['_', '*', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];

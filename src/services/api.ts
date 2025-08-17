@@ -5,12 +5,15 @@ type CacheEntry<T> = {
   promise?: Promise<T>;
 };
 
-export const GAME_INFO_API = "https://testapi.rinshankaiho.fun/v0";
+let GAME_INFO_API = "";
+
+export const updateApiUrl = (url: string) => {
+  GAME_INFO_API = url;
+};
 
 const cache = new Map<string, CacheEntry<any>>();
 
-export const reqGameInfo = async (name: string, site: string, isCache?: boolean): Promise<GamePreviewInfoItem | null> => {
-  site = site.toLowerCase();
+export const reqGameInfo = async (name: string, site: string, isCache?: boolean): Promise<GamePreviewInfoItem[]> => {
   const key = `${name}_${site}`;
   const cached = cache.get(key) || { data: undefined, promise: undefined };
 
@@ -30,7 +33,7 @@ export const reqGameInfo = async (name: string, site: string, isCache?: boolean)
 };
 
 const getGameInfo = async (name: string, site: string) => {
-  const res = await fetch(`${GAME_INFO_API}/search?query=${name}&site=${site}`);
+  const res = await fetch(`${GAME_INFO_API}/search?text=${name}&website=${site}`);
   const { data } = await res.json();
-  return data[0];
+  return data;
 };

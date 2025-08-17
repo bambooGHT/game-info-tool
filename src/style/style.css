@@ -102,6 +102,10 @@ svg:active path {
   background-color: rgba(0, 64, 255, 0.1) !important;
 }
 
+.button1.select {
+  background-color: rgba(0, 64, 255, 0.2) !important;
+}
+
 .button2:active {
   background-color: #0009321f !important;
 }

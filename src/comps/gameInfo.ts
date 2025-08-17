@@ -1,4 +1,4 @@
-import { currentGameInfo, currentGameTags, deleteCurrentGameImage, telegramData, updateTelegramDataAt, addCurrentGameInfoTagAt, deleteCurrentGameInfoTagAt, updateCurrentGameInfoAt, telegramMessageIds, updateCurrentGameImageHasSpoiler } from "@/data";
+import { currentGameInfo, currentGameTags, deleteCurrentGameImage, configData, updateConfigDataAt, addCurrentGameInfoTagAt, deleteCurrentGameInfoTagAt, updateCurrentGameInfoAt, telegramMessageIds, updateCurrentGameImageHasSpoiler } from "@/data";
 import { sendMessage, sendRecord } from "@/data/sendMessage";
 import type { GameTags } from "@/types";
 import { defineComponent, h, ref, toRaw } from "vue";
@@ -7,8 +7,8 @@ const tagElNameItems: [string, keyof GameTags][] = [
   ["运行平台", "platform"],
   ["语言", "langTags"],
   ["剧情分类", "storyTags"],
-  ["游戏类型", "gameTags"],
-  ["R18内容", "pornTags"],
+  ["游戏类型", "gameTypeTags"],
+  ["内容", "categoryTags"],
 ];
 
 export const gameInfoBox = () => {
@@ -70,6 +70,14 @@ const infoListEl = {
           onChange: (e: any) => updateCurrentGameInfoAt("brand", e.target.value)
         })
       ]),
+      h("li", [
+        h("div", { class: "title" }, "系列名"),
+        h("input", {
+          type: "text", id: "series-name", placeholder: "series name",
+          value: currentGameInfo.seriesName,
+          onChange: (e: any) => updateCurrentGameInfoAt("seriesName", e.target.value)
+        })
+      ]),
       ...tagElNameItems.map(([name1, name2]) => h("li", [
         h("div", { class: "title" }, name1),
         ...[...currentGameInfo[name2]].map(createTagEl),
@@ -127,16 +135,24 @@ const bottomEl = {
           h("div", { class: "title" }, "bot token"),
           h("input", {
             type: "text", id: "bot-token", placeholder: "bot token",
-            value: telegramData.botToken,
-            onChange: (e: any) => updateTelegramDataAt("botToken", e.target.value)
+            value: configData.botToken,
+            onChange: (e: any) => updateConfigDataAt("botToken", e.target.value)
           })
         ]),
         h("li", [
           h("div", { class: "title" }, "chat id"),
           h("input", {
             type: "text", id: "chat-id", placeholder: "chat id",
-            value: telegramData.chatId,
-            onChange: (e: any) => updateTelegramDataAt("chatId", e.target.value)
+            value: configData.chatId,
+            onChange: (e: any) => updateConfigDataAt("chatId", e.target.value)
+          })
+        ]),
+        h("li", [
+          h("div", { class: "title" }, "api url"),
+          h("input", {
+            type: "text", id: "api-url", placeholder: "api url",
+            value: configData.API_Url,
+            onChange: (e: any) => updateConfigDataAt("API_Url", e.target.value)
           })
         ])
       ]);
@@ -164,7 +180,7 @@ const bottomEl = {
             value: telegramMessageIds.value,
             onChange: (e: any) => telegramMessageIds.value = e.target.value
           }),
-          h("button", { class: "button1", onClick: () => sendMessage(telegramData, toRaw(currentGameInfo), telegramMessageIds.value) }, "发送"),
+          h("button", { class: "button1", onClick: () => sendMessage(configData, toRaw(currentGameInfo), telegramMessageIds.value) }, "发送"),
         ]),
       ]),
       showSettingDialog.value ? h(createDialog, { title: "设置", onShow: () => showSettingDialog.value = false }, settingBox) : null,

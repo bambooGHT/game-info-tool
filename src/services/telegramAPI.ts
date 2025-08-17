@@ -1,7 +1,8 @@
-import type { TelegramData } from "@/types";
+import type { ConfigData } from "@/types";
 
 type Info = { images: { has_spoiler: boolean; url: string; }[], message: string; messageIds?: (string | number)[]; };
 type MessageParams = { type: string; media: string; caption?: string; parse_mode?: string; };
+type TelegramData = Omit<ConfigData, "API_Url">;
 const TELEGRAM_API = `https://api.telegram.org/bot`;
 
 export const sendTgMessage = async (telegramData: TelegramData, info: Info) => {

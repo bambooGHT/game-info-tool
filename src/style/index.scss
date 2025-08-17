@@ -52,10 +52,21 @@ img {
       z-index: 100;
       display: block;
     }
+
+    .sticky ul {
+      display: flex;
+      justify-content: center;
+      user-select: none;
+      li {
+        width: 28px;
+        margin: 0 0.4rem;
+        line-height: 23px;
+        font-size: 14px;
+      }
+    }
     .sticky:nth-of-type(1) {
       top: 0;
     }
-
     .sticky:nth-last-of-type(1) {
       bottom: 0;
       button {
@@ -64,7 +75,10 @@ img {
       }
     }
 
-
+    .not_result {
+      text-align: center;
+      font-size: 18px;
+    }
     .load-button {
       position: absolute;
       inset: 0;
@@ -125,7 +139,8 @@ img {
 
   .game-info-image {
     display: flex;
-    height: 110px;
+    overflow-x: auto;
+    overflow-y: hidden;
     img {
       height: 100px;
       margin-right: 5px;
@@ -165,7 +180,7 @@ img {
         max-width: 40rem;
       }
       > div:nth-child(1) {
-        width: 7rem;
+        flex: 0 0 7rem;
       }
     }
   }

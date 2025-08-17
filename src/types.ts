@@ -1,6 +1,6 @@
 import type { SearchStatus } from "./enums";
 
-export type GameInfoSourceSiteNames = "2DFan";
+export type GameInfoSourceSiteNames = "2DFan" | "DLsite";
 
 export interface GameInfoSourceSite {
   /** 网站名 */
@@ -21,24 +21,30 @@ export interface GamePreviewInfoItem {
   brand: string;
   /** 发售日期 */
   releaseDate: string;
+  /** 系列名 */
+  seriesName: string;
   /** 发售平台 */
   platform: string[];
   /** 游戏标签 */
   gameTags: string[];
-  /** 色情标签 */
-  pornTags: string[];
+  /** 类别标签 */
+  categoryTags: string[];
   /** 语言标签 */
   langTags: string[];
+  /** 类别标签 */
+  storyTags: string[];
+  /** 年龄限制 */
+  ageRestriction?: string;
   /** 来源Url */
   sourceUrl: string;
   /** 介绍 */
   introduction: string;
 }
 
-export interface GameInfo extends Omit<GamePreviewInfoItem, "images" | "sourceUrl" | "platform" | "gameTags" | "pornTags" | "langTags"> {
+export interface GameInfo extends Omit<GamePreviewInfoItem, "images" | "sourceUrl" | "platform" | "gameTags" | "categoryTags" | "langTags" | "storyTags" | "ageRestriction"> {
   platform: Set<string>;
-  gameTags: Set<string>;
-  pornTags: Set<string>;
+  gameTypeTags: Set<string>;
+  categoryTags: Set<string>;
   langTags: Set<string>;
   storyTags: Set<string>;
   /** 下载Url */
@@ -47,11 +53,12 @@ export interface GameInfo extends Omit<GamePreviewInfoItem, "images" | "sourceUr
   images: { has_spoiler: boolean, url: string; }[];
 }
 
-export interface GameTags extends Pick<GameInfo, "platform" | "gameTags" | "pornTags" | "langTags" | "storyTags"> { }
+export interface GameTags extends Pick<GameInfo, "platform" | "gameTypeTags" | "categoryTags" | "langTags" | "storyTags"> { }
 
-export interface TelegramData {
+export interface ConfigData {
   botToken: string;
   chatId: string;
+  API_Url: string;
 }
 
 export interface SendRecord {
