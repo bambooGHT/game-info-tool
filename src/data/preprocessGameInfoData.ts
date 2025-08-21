@@ -38,7 +38,7 @@ const _2dfanPreprocessData: PreprocessSite = (preInfos) => {
     });
 
     const storySet = filterTags(rawStory, storyFilterTags);
-    rawStory.forEach(p => storySet.add(p));
+    storyTags.forEach(p => storySet.add(p));
 
     const imgs = images.map(p => ({ has_spoiler: false, url: p }));
 
@@ -73,7 +73,7 @@ const dlsitePreprocessData: PreprocessSite = (preInfos) => {
 
     const langSet = new Set(langTags);
     const storySet = filterTags(rawStory, ageRestriction ? [...categoryTags, ageRestriction] : categoryTags);
-    rawStory.forEach(p => storySet.add(p));
+    storyTags.forEach(p => storySet.add(p));
 
     const imgs = images.map(p => ({ has_spoiler: false, url: p }));
 
