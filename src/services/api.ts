@@ -8,7 +8,7 @@ type CacheEntry<T> = {
 let GAME_INFO_API = "";
 
 export const updateApiUrl = (url: string) => {
-  GAME_INFO_API = url.replace(/\/$/, '');
+  GAME_INFO_API = url;
 };
 
 const cache = new Map<string, CacheEntry<GamePreviewInfoItem[] | null>>();

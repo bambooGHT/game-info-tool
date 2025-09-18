@@ -42,7 +42,10 @@ export const currentGameTags = reactive<GameTags>({
 export const telegramMessageIds = ref("");
 export const configData = (() => {
   const result: ConfigData = JSON.parse(localStorage.getItem("configData") ?? `{ "botToken": "", "chatId": "", "API_Url":"" }`);
-  if (result.API_Url) updateApiUrl(result.API_Url);
+  if (result.API_Url) {
+    result.API_Url = result.API_Url.replace(/\/$/, '');
+    updateApiUrl(result.API_Url);
+  }
   return result;
 })();
 
@@ -132,7 +135,10 @@ export const updateCurrentGameInfoAt = (key: keyof GameInfo, value: string) => {
 };
 
 export const updateConfigDataAt = (key: keyof ConfigData, value: string) => {
+  if (key === "API_Url") {
+    value = value.replace(/\/$/, '');
+    updateApiUrl(value);
+  }
   configData[key] = value;
-  if (key === "API_Url") updateApiUrl(value);
   localStorage.setItem("configData", JSON.stringify(configData));
 };
