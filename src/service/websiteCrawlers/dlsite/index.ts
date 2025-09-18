@@ -24,8 +24,6 @@ const reqDLsiteGameInfo = async (url: string) => {
 };
 
 const searchResult = async (url: string, depth: number = 0): Promise<Element | null> => {
-  console.log(url);
-  
   const data = await reqDLsiteGameInfo(url);
   const document = new JSDOM(data).window.document;
   const listTable = document.querySelector(".work_1col_table.n_worklist");
