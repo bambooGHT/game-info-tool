@@ -23,15 +23,15 @@ const reqDLsiteGameInfo = async (url: string) => {
   return res.data;
 };
 
-const searchResult = async (url: string): Promise<Element | undefined> => {
+const searchResult = async (url: string, depth: number = 0): Promise<Element | null> => {
   const data = await reqDLsiteGameInfo(url);
   const document = new JSDOM(data).window.document;
   const listTable = document.querySelector(".work_1col_table.n_worklist");
 
-  if (!listTable) {
+  if (!listTable && depth < 1) {
     const listDOM = document.querySelectorAll(".extend_search_list_item");
     const otome = listDOM?.[1]?.querySelector("span");
-    return otome ? await searchResult(listDOM[1].querySelector("a")!.href) : undefined;
+    return otome ? await searchResult(listDOM[1].querySelector("a")!.href, ++depth) : null;
   }
 
   return listTable;
@@ -146,7 +146,7 @@ const getLangTags = async (el: Element, el2: Element | null): Promise<{ langTags
 
     return {
       [key]: document.querySelector("#work_name")!.textContent,
-      langTags: el2List.map(p => lang[p.querySelector("a")!.textContent.trim()] || "").filter(Boolean)
+      langTags: el2List.map(p => lang[p.textContent.trim()] || "").filter(Boolean)
     };
   }
 

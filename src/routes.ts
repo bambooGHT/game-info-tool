@@ -23,11 +23,15 @@ export const routes: RouteType[] = [
         result.message = "name cannot be empty";
         return result;
       }
-
-      const data = await websites[website](text.trim());
-      if (!data.length) result.message = "no result";
-      result.data = data;
-      return result;
+      
+      try {
+        const data = await websites[website](text.trim());
+        if (!data.length) result.message = "no result";
+        result.data = data;
+        return result;
+      } catch (error) {
+        console.log(error);
+      }
     }
   },
   {
