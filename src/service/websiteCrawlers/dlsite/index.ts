@@ -4,8 +4,11 @@ import type { GamePreviewInfo } from "../types";
 import { DLsiteConstants } from "./constants";
 
 export const DLsite = async (text: string): Promise<GamePreviewInfo[]> => {
+  console.log(text);
+  console.log(text.replaceAll(" ", "+"));
+  console.log(text.replaceAll("%20", "+"));
   const urlList = await searchGame(text.replaceAll(" ", "+"));
-
+  
   return urlList ? Promise.all(urlList.map(getGameInfo)) : [];
 };
 
