@@ -23,7 +23,7 @@ export const routes: RouteType[] = [
         result.message = "name cannot be empty";
         return result;
       }
-      
+
       try {
         const data = await websites[website](text.trim());
         if (!data.length) result.message = "no result";
@@ -42,7 +42,9 @@ export const routes: RouteType[] = [
     },
     handler: async (req: FastifyRequest<{ Querystring: ImgProxyType; }>, res) => {
       const { url } = req.query;
-      const headers = url.includes("img.achost.top") ? { "Referer": "https://2dfan.com" } : {};
+      const headers = url.includes("img.achost.top") ? {
+        "Referer": "https://2dfan.com/"
+      } : {};
       const response = await axios.get(url, {
         responseType: 'stream',
         headers
