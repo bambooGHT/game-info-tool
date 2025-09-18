@@ -11,9 +11,9 @@ export const updateApiUrl = (url: string) => {
   GAME_INFO_API = url;
 };
 
-const cache = new Map<string, CacheEntry<any>>();
+const cache = new Map<string, CacheEntry<GamePreviewInfoItem[] | null>>();
 
-export const reqGameInfo = async (name: string, site: string, isCache?: boolean): Promise<GamePreviewInfoItem[]> => {
+export const reqGameInfo = async (name: string, site: string, isCache?: boolean): Promise<GamePreviewInfoItem[] | null> => {
   const key = `${name}_${site}`;
   const cached = cache.get(key) || { data: undefined, promise: undefined };
 
@@ -24,12 +24,18 @@ export const reqGameInfo = async (name: string, site: string, isCache?: boolean)
     .then((res) => {
       cached.data = res;
       return res;
-    }).finally(() => {
+    })
+    .catch((error) => {
+      console.error("请求游戏信息失败:", error);
+      cached.data = null;
+      return null;
+    })
+    .finally(() => {
       cached.promise = undefined;
       if (isCache) cache.delete(key);
     });
 
-  return cached.promise;
+  return cached.promise!;
 };
 
 const getGameInfo = async (name: string, site: string) => {

@@ -65,7 +65,7 @@ export const getGamePreviewInfo = async (gameName: string, reqSite?: GameInfoSou
   gameInfoSourceSite[reqSite].searchStatus = SearchStatus.SEARCHING;
 
   const data = await reqGameInfo(gameName, reqSite);
-  if (!data[0]) {
+  if (!data?.[0]) {
     gamePreviewInfoList[reqSite] = [];
     gameInfoSourceSite[reqSite].searchStatus = SearchStatus.COMPLETED;
     return;
