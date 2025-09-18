@@ -4,9 +4,6 @@ import type { GamePreviewInfo } from "../types";
 import { DLsiteConstants } from "./constants";
 
 export const DLsite = async (text: string): Promise<GamePreviewInfo[]> => {
-  console.log(text);
-  console.log(text.replaceAll(" ", "+"));
-  console.log(text.replaceAll("%20", "+"));
   const urlList = await searchGame(text.replaceAll(" ", "+"));
   
   return urlList ? Promise.all(urlList.map(getGameInfo)) : [];
@@ -27,6 +24,8 @@ const reqDLsiteGameInfo = async (url: string) => {
 };
 
 const searchResult = async (url: string, depth: number = 0): Promise<Element | null> => {
+  console.log(url);
+  
   const data = await reqDLsiteGameInfo(url);
   const document = new JSDOM(data).window.document;
   const listTable = document.querySelector(".work_1col_table.n_worklist");
