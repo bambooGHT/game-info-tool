@@ -18,13 +18,19 @@ export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageI
   const messageIds = messageIdStr ? messageIdStr.split(" ").map(p => p.trim()).filter(Boolean) : undefined;
 
   const { translateName, name,
-    releaseDate, images,
+    releaseDate,
     platform, brand,
     gameTypeTags: gameTags, categoryTags,
     langTags, storyTags, seriesName,
     orthrText = "", introduction, downloadUrl = ""
   } = gameInfo;
 
+  const images = gameInfo.images[0].url.includes("url=") ? gameInfo.images.map(p => {
+    return {
+      has_spoiler: p.has_spoiler,
+      url: p.url.split("url=")[1]
+    };
+  }) : gameInfo.images;
   const { introHead, introFolded } = splitIntroduction(introduction);
 
   const rows = [
