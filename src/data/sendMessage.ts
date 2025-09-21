@@ -13,7 +13,7 @@ export const saveSendRecord = (data: SendRecord) => {
 };
 
 export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageIdStr: string) => {
-  if (!Object.keys(gameInfo).length) return;
+  if (!Object.keys(gameInfo).length || !gameInfo.images.length) return;
 
   const messageIds = messageIdStr ? messageIdStr.split(" ").map(p => p.trim()).filter(Boolean) : undefined;
 

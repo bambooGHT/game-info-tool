@@ -106,7 +106,7 @@ export const replaceCurrentGameInfo = (siteName: GameInfoSourceSiteNames, index:
   if (gameInfo.images.length >= 10) {
     gameInfo.images.splice(10);
   }
-  Object.assign(currentGameInfo, structuredClone(curPreprocessData.gameInfo!));
+  Object.assign(currentGameInfo, structuredClone(gameInfo));
   Object.assign(currentGameTags, structuredClone(curPreprocessData.tags!));
 };
 
