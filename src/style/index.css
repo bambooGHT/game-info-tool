@@ -196,7 +196,7 @@ img {
   padding-bottom: 0.5rem;
 }
 .game-info .record li div {
-  height: 2.3rem;
+  min-height: 2.3rem;
 }
 .game-info .record li:not(:last-child):after {
   position: absolute;

@@ -196,7 +196,7 @@ img {
     margin: 2rem 0 2rem 0;
     padding-bottom: 0.5rem;
     div {
-      height: 2.3rem;
+      min-height: 2.3rem;
     }
     &:not(:last-child):after {
       position: absolute;
