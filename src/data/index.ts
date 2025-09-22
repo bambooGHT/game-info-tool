@@ -83,9 +83,19 @@ export const getGamePreviewInfo = async (gameName: string, reqSite?: GameInfoSou
     });
   }
 
-  gamePreviewInfoList[reqSite] = data;
   gameInfoSourceSite[reqSite].searchStatus = SearchStatus.COMPLETED;
   gameInfoPreprocessData[reqSite] = preprocessGameInfoData(reqSite, data);
+
+  const newData = structuredClone(data);
+  gameInfoPreprocessData[reqSite].list!.forEach(({ gameInfo }, index) => {
+    const newDataItem = newData[index];
+    newDataItem.platform = [...gameInfo.platform];
+    newDataItem.gameTypeTags = [...gameInfo.gameTypeTags];
+    newDataItem.categoryTags = [...gameInfo.categoryTags];
+    newDataItem.langTags = [...gameInfo.langTags];
+    newDataItem.storyTags = [...gameInfo.storyTags];
+  });
+  gamePreviewInfoList[reqSite] = newData;
 };
 
 const resetPreprocessGameInfoData = () => {
@@ -125,9 +135,7 @@ export const replaceCurrentGameInfoAt = <K extends keyof GameInfo>(siteName: Gam
   const field = key as keyof GameTags;
 
   currentGameInfo[key] = structuredClone(curPreprocessData.gameInfo[key]);
-  if (currentGameTags[field]) {
-    currentGameTags[field] = structuredClone(curPreprocessData.tags[field]);
-  }
+  currentGameTags[field] &&= structuredClone(curPreprocessData.tags[field]);
 };
 
 export const addCurrentGameInfoTagAt = (tagType: keyof GameTags, value: string) => {

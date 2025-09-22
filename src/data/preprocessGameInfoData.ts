@@ -11,7 +11,6 @@ export const preprocessGameInfoData = (siteName: GameInfoSourceSiteNames, preInf
   return preprocessSites[siteName](preInfos);
 };
 
-
 const _2dfanPreprocessData: PreprocessSite = (preInfos) => {
   const { langTags: rawLang,
     storyTags: rawStory,
@@ -20,9 +19,9 @@ const _2dfanPreprocessData: PreprocessSite = (preInfos) => {
     platform: rawPlatform } = defaultGameTags;
 
   const result = preInfos.map(preInfo => {
-    const { platform, gameTags, categoryTags, langTags = [], storyTags, images, ageRestriction, ...rest } = preInfo;
+    const { platform, gameTypeTags, categoryTags, langTags = [], storyTags, images, ageRestriction, ...rest } = preInfo;
     const excludedCategoryTags = [...rawGameType, ...rawStory, ...rawLang];
-    const storyFilterTags = [...categoryTags, ...gameTags];
+    const storyFilterTags = [...categoryTags, ...gameTypeTags];
 
     if (ageRestriction) {
       excludedCategoryTags.push(ageRestriction);
@@ -30,7 +29,7 @@ const _2dfanPreprocessData: PreprocessSite = (preInfos) => {
     }
 
     const platformSet = new Set(platform);
-    const gameTypeSet = filterTags([...rawGameType, ...gameTags], categoryTags);
+    const gameTypeSet = filterTags([...rawGameType, ...gameTypeTags], categoryTags);
     const langSet = filterTags(rawLang, categoryTags);
     const categorySet = excludeTags(categoryTags, excludedCategoryTags);
     categorySet.forEach(item => {
@@ -76,10 +75,10 @@ const dlsitePreprocessData: PreprocessSite = (preInfos) => {
     platform: rawPlatform } = defaultGameTags;
 
   const result = preInfos.map(preInfo => {
-    const { platform, gameTags, categoryTags, langTags = [], storyTags, images, ageRestriction, ...rest } = preInfo;
+    const { platform, gameTypeTags, categoryTags, langTags = [], storyTags, images, ageRestriction, ...rest } = preInfo;
 
     const platformSet = new Set(platform);
-    const gameTypeSet = new Set(gameTags);
+    const gameTypeSet = new Set(gameTypeTags);
     const categorySet = excludeTags(categoryTags, rawStory);
 
     const langSet = new Set(langTags);
@@ -100,7 +99,7 @@ const dlsitePreprocessData: PreprocessSite = (preInfos) => {
       },
       tags: {
         platform: excludeTags(rawPlatform, platform),
-        gameTypeTags: excludeTags(rawGameType, gameTags),
+        gameTypeTags: excludeTags(rawGameType, gameTypeTags),
         categoryTags: excludeTags(rawCategory, [...categorySet]),
         langTags: excludeTags(rawLang, langTags),
         storyTags: excludeTags(rawStory, [...storySet]),

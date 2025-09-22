@@ -121,6 +121,14 @@ img {
       }
     }
   }
+
+  .preview-info-tags {
+    display: flex;
+    flex-wrap: wrap;
+    li {
+      color: #002bb7c5;
+    }
+  }
 }
 
 .game-info {

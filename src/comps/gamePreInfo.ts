@@ -1,6 +1,6 @@
-import { addCurrentGameImage, gameInfoSourceSite, gamePreviewInfoList, getGamePreviewInfo, replaceCurrentGameInfo, replaceCurrentGameInfoAt, SearchText } from "@/data";
+import { addCurrentGameImage, addCurrentGameInfoTagAt, gameInfoSourceSite, gamePreviewInfoList, getGamePreviewInfo, replaceCurrentGameInfo, replaceCurrentGameInfoAt, SearchText } from "@/data";
 import { SearchStatus } from "@/enums";
-import type { GameInfoSourceSite, GameInfoSourceSiteNames, GamePreviewInfoItem } from "@/types";
+import type { GameInfoSourceSite, GameInfoSourceSiteNames, GamePreviewInfoItem, GameTags } from "@/types";
 import { h, ref, type Ref } from "vue";
 
 const infoKeyName: Record<string, string> = {
@@ -11,7 +11,7 @@ const infoKeyName: Record<string, string> = {
   seriesName: "系列名",
   platform: "平台",
   langTags: "语言",
-  gameTags: "游戏标签",
+  gameTypeTags: "游戏标签",
   storyTags: "剧情",
   categoryTags: "内容",
   ageRestriction: "分级",
@@ -74,13 +74,22 @@ const infoEls = (siteName: GameInfoSourceSiteNames, previewInfo: GamePreviewInfo
     if (!infoKeyName[key] || value.length === 0) return result;
 
     const label = h("span", infoKeyName[key]);
-    const content = h("span", {
-      innerHTML: typeof value === "string" ? value :
-        value.map((item: string) => `#${item}&nbsp;`).join("")
-    });
+    const content = typeof value === "string" ?
+      h("span", { innerHTML: value }) :
+      h("ul", { class: "preview-info-tags" }, value.map((item: string) => {
+        return h("li", {
+          innerHTML: `#${item}&nbsp;`, onClick: (e) => {
+            e.stopPropagation();
+            addCurrentGameInfoTagAt(key as keyof GameTags, item);
+          }
+        });
+      }));
+
 
     result.push(h("li", {
-      onDblclick: () => replaceCurrentGameInfoAt(siteName, key as any, currentInfoIndex.value),
+      onDblclick: () => {
+        replaceCurrentGameInfoAt(siteName, key as any, currentInfoIndex.value);
+      },
       onMousedown: (e) => {
         if (e.detail > 1) {
           e.preventDefault();

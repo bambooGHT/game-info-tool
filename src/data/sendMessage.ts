@@ -20,7 +20,7 @@ export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageI
   const { translateName, name,
     releaseDate,
     platform, brand,
-    gameTypeTags: gameTags, categoryTags,
+    gameTypeTags, categoryTags,
     langTags, storyTags, seriesName,
     orthrText = "", introduction
   } = gameInfo;
@@ -40,7 +40,7 @@ export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageI
     formatTags("🖥运行平台 ", platform),
     formatTags("🌐语言 ", langTags),
     formatTags("📓剧情分类 ", storyTags),
-    formatTags("🌟游戏类型 ", gameTags),
+    formatTags("🌟游戏类型 ", gameTypeTags),
     formatTags("🏷︎内容分类 ", categoryTags),
     `🗓发售日期 ${releaseDate.replace(/(\d{4})-(\d{2})-(\d{2})/, "#$1年$2月 $3日")}`,
     seriesName ? `系列名 #${seriesName}` : "",
@@ -63,7 +63,7 @@ export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageI
     }
   }
   console.log(rows + downloadUrlText);
-  
+
   const resultText = escapeMarkdownV2(rows) + introFolded + escapeMarkdownV2(downloadUrlText, ['(', ')']);
 
   sendTgMessage(configData, { images, message: resultText, messageIds }).then((res) => {

@@ -26,7 +26,7 @@ export interface GamePreviewInfoItem {
   /** 发售平台 */
   platform: string[];
   /** 游戏标签 */
-  gameTags: string[];
+  gameTypeTags: string[];
   /** 类别标签 */
   categoryTags: string[];
   /** 语言标签 */
@@ -41,7 +41,7 @@ export interface GamePreviewInfoItem {
   introduction: string;
 }
 
-export interface GameInfo extends Omit<GamePreviewInfoItem, "images" | "sourceUrl" | "platform" | "gameTags" | "categoryTags" | "langTags" | "storyTags" | "ageRestriction"> {
+export interface GameInfo extends Omit<GamePreviewInfoItem, "images" | "sourceUrl" | "platform" | "gameTypeTags" | "categoryTags" | "langTags" | "storyTags" | "ageRestriction"> {
   platform: Set<string>;
   gameTypeTags: Set<string>;
   categoryTags: Set<string>;

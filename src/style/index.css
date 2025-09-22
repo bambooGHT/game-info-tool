@@ -119,6 +119,13 @@ img {
   width: 6rem;
   flex: 0 0 6rem;
 }
+.game-preview-info-item .preview-info-tags {
+  display: flex;
+  flex-wrap: wrap;
+}
+.game-preview-info-item .preview-info-tags li {
+  color: rgba(0, 43, 183, 0.7725490196);
+}
 
 .game-info {
   width: 100%;
