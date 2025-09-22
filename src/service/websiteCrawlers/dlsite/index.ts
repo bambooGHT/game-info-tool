@@ -63,7 +63,7 @@ const getGameInfo = async (url: string): Promise<GamePreviewInfo> => {
   const releaseDate = findInfo("发售日")!.textContent.replace(/年|月/g, "-").replace(/日/, "");
   const seriesName = findInfo("系列名")?.textContent.trim() || "";
   const platform = getAvailablePlatforms(CN_Document.querySelector(".os_popup_body tbody")!);
-  const gameTags = getGameTags(CN_Document.querySelector("#category_type")!);
+  const gameTypeTags = getGameTags(CN_Document.querySelector("#category_type")!);
   const categoryTags = [...findInfo("分类")!.querySelectorAll("a")!].map(p => p.textContent.trim());
   const storyTag = findInfo("其他")?.querySelector("span")?.textContent;
   const { name: n2, translateName: tn2, langTags } = await getLangTags(findInfo("支持的语言")!, CN_Document.querySelector(".work_edition_linklist.type_trans"));
@@ -81,7 +81,7 @@ const getGameInfo = async (url: string): Promise<GamePreviewInfo> => {
     releaseDate,
     seriesName,
     platform,
-    gameTags,
+    gameTypeTags,
     categoryTags,
     storyTags: storyTag ? [storyTag] : [],
     langTags,

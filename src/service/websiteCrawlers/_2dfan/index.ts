@@ -57,7 +57,7 @@ const getGameInfo = async (url: string): Promise<GamePreviewInfo> => {
     releaseDate,
     seriesName: "",
     platform: [],
-    gameTags: [],
+    gameTypeTags: [],
     categoryTags,
     langTags: [],
     storyTags: [],

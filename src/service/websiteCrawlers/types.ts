@@ -14,7 +14,7 @@ export interface GamePreviewInfo {
   /** 发售平台 */
   platform: string[];
   /** 游戏标签 */
-  gameTags: string[];
+  gameTypeTags: string[];
   /** 类别标签 */
   categoryTags: string[];
   /** 类别标签 */
