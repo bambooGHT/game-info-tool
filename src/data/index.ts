@@ -77,7 +77,6 @@ export const getGamePreviewInfo = async (gameName: string, reqSite?: GameInfoSou
     gameInfoSourceSite[reqSite].searchStatus = SearchStatus.COMPLETED;
     return;
   };
-
   if (data[0].images[0].startsWith("/")) {
     data.forEach(item => {
       item.images = item.images.map(p => configData.API_Url + p);
