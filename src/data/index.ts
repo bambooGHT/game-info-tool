@@ -2,8 +2,8 @@ import { SearchStatus } from "@/enums";
 import { reqGameInfo, updateApiUrl } from "@/services/api";
 import type { GameInfo, GameInfoSourceSite, GameInfoSourceSiteNames, GamePreviewInfoItem, GameTags, ConfigData } from "@/types";
 import { reactive, ref } from "vue";
-import { defaultGameTags, defaultGameInfo, siteNames } from "./defaultData";
-import { preprocessGameInfoData } from "./preprocessGameInfoData";
+import { defaultGameTags, defaultGameInfo, siteNames, addDefaultGameTag, removeDefaultGameTag } from "./defaultData";
+import { preprocessGameInfoData, type PreprocessSite } from "./preprocessGameInfoData";
 
 export const SearchText = ref("");
 export const gameInfoSourceSite = reactive<Record<GameInfoSourceSiteNames, GameInfoSourceSite>>({
@@ -24,20 +24,14 @@ export const gamePreviewInfoList = reactive<Record<GameInfoSourceSiteNames, Game
   "DLsite": []
 });
 
-const gameInfoPreprocessData: Record<GameInfoSourceSiteNames, { gameInfo?: GameInfo, tags?: GameTags; }[]> = {
-  "2DFan": [],
-  "DLsite": []
+const gameInfoPreprocessData: Record<GameInfoSourceSiteNames, ReturnType<PreprocessSite>> = {
+  "2DFan": {},
+  "DLsite": {}
 };
 
 export const currentGameInfo = reactive(structuredClone(defaultGameInfo));
 
-export const currentGameTags = reactive<GameTags>({
-  platform: new Set(),
-  gameTypeTags: new Set(),
-  categoryTags: new Set(),
-  langTags: new Set(),
-  storyTags: new Set()
-});
+export const currentGameTags = reactive({} as GameTags);
 
 export const telegramMessageIds = ref("");
 export const configData = (() => {
@@ -49,14 +43,24 @@ export const configData = (() => {
   return result;
 })();
 
+const resetCurrentGameTags = () => {
+  Object.assign(currentGameTags, {
+    platform: new Set(defaultGameTags.platform),
+    gameTypeTags: new Set(defaultGameTags.gameTypeTags),
+    categoryTags: new Set(defaultGameTags.categoryTags),
+    langTags: new Set(defaultGameTags.langTags),
+    storyTags: new Set(defaultGameTags.storyTags)
+  });
+};
+
 export const resetData = () => {
   telegramMessageIds.value = "";
   Object.assign(currentGameInfo, structuredClone(defaultGameInfo));
-  Object.assign(currentGameTags, structuredClone(defaultGameTags));
+  resetCurrentGameTags();
   siteNames.forEach(item => {
     gameInfoSourceSite[item].searchStatus = SearchStatus.NOT_STARTED;
     gamePreviewInfoList[item] = [];
-    gameInfoPreprocessData[item] = [];
+    gameInfoPreprocessData[item] = {};
   });
 };
 
@@ -66,8 +70,8 @@ export const getGamePreviewInfo = async (gameName: string, reqSite?: GameInfoSou
 
   gamePreviewInfoList[reqSite] = [];
   gameInfoSourceSite[reqSite].searchStatus = SearchStatus.SEARCHING;
-
   const data = await reqGameInfo(gameName, reqSite);
+
   if (!data?.[0]) {
     gamePreviewInfoList[reqSite] = [];
     gameInfoSourceSite[reqSite].searchStatus = SearchStatus.COMPLETED;
@@ -83,6 +87,13 @@ export const getGamePreviewInfo = async (gameName: string, reqSite?: GameInfoSou
   gamePreviewInfoList[reqSite] = data;
   gameInfoSourceSite[reqSite].searchStatus = SearchStatus.COMPLETED;
   gameInfoPreprocessData[reqSite] = preprocessGameInfoData(reqSite, data);
+};
+
+const resetPreprocessGameInfoData = () => {
+  Object.entries(gameInfoPreprocessData).forEach(([siteName, data]) => {
+    if (!data.raw) return;
+    gameInfoPreprocessData[siteName as GameInfoSourceSiteNames] = preprocessGameInfoData(siteName as any, data.raw!);
+  });
 };
 
 export const addCurrentGameImage = (img: string) => {
@@ -101,22 +112,22 @@ export const updateCurrentGameImageHasSpoiler = (img: { url: string, has_spoiler
 };
 
 export const replaceCurrentGameInfo = (siteName: GameInfoSourceSiteNames, index: number) => {
-  const curPreprocessData = gameInfoPreprocessData[siteName][index];
-  const gameInfo = structuredClone(curPreprocessData.gameInfo!);
+  const curPreprocessData = gameInfoPreprocessData[siteName].list![index];
+  const gameInfo = structuredClone(curPreprocessData.gameInfo);
   if (gameInfo.images.length >= 10) {
     gameInfo.images.splice(10);
   }
   Object.assign(currentGameInfo, structuredClone(gameInfo));
-  Object.assign(currentGameTags, structuredClone(curPreprocessData.tags!));
+  Object.assign(currentGameTags, structuredClone(curPreprocessData.tags));
 };
 
 export const replaceCurrentGameInfoAt = <K extends keyof GameInfo>(siteName: GameInfoSourceSiteNames, key: K, index: number) => {
-  const curPreprocessData = gameInfoPreprocessData[siteName][index];
+  const curPreprocessData = gameInfoPreprocessData[siteName].list![index];
   const field = key as keyof GameTags;
 
-  currentGameInfo[key] = structuredClone(curPreprocessData.gameInfo![key]);
+  currentGameInfo[key] = structuredClone(curPreprocessData.gameInfo[key]);
   if (currentGameTags[field]) {
-    currentGameTags[field] = structuredClone(curPreprocessData.tags![field]);
+    currentGameTags[field] = structuredClone(curPreprocessData.tags[field]);
   }
 };
 
@@ -142,3 +153,20 @@ export const updateConfigDataAt = (key: keyof ConfigData, value: string) => {
   configData[key] = value;
   localStorage.setItem("configData", JSON.stringify(configData));
 };
+
+export const addDefaultGameTagAt = (type: keyof GameTags, value: string) => {
+  if (addDefaultGameTag(type, value)) resetPreprocessGameInfoData();
+
+
+  if (currentGameTags[type].has(value) || currentGameInfo[type].has(value)) return;
+  currentGameTags[type].add(value);
+};
+
+export const removeDefaultGameTagAt = (type: keyof GameTags, value: string) => {
+  if (removeDefaultGameTag(type, value)) resetPreprocessGameInfoData();
+
+
+  if (currentGameTags[type].has(value)) currentGameTags[type].delete(value);
+};
+
+resetCurrentGameTags();

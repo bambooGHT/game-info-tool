@@ -2,21 +2,24 @@ import type { GameInfo, GameInfoSourceSiteNames, GamePreviewInfoItem, GameTags }
 import { defaultGameTags } from "./defaultData";
 import { excludeTags, filterTags } from "./tools";
 
-type PreprocessSite = (preInfo: GamePreviewInfoItem[]) => { gameInfo?: GameInfo, tags?: GameTags; }[];
+export type PreprocessSite = (preInfos: GamePreviewInfoItem[]) => {
+  list?: { gameInfo: GameInfo, tags: GameTags; }[];
+  raw?: GamePreviewInfoItem[];
+};
 
-const { langTags: rawLang,
-  storyTags: rawStory,
-  gameTypeTags: rawGameType,
-  categoryTags: rawCategory,
-  platform: rawPlatform } = defaultGameTags;
-
-export const preprocessGameInfoData = (siteName: GameInfoSourceSiteNames, preInfo: GamePreviewInfoItem[]): ReturnType<PreprocessSite> => {
-  return preprocessSites[siteName](preInfo);
+export const preprocessGameInfoData = (siteName: GameInfoSourceSiteNames, preInfos: GamePreviewInfoItem[]): ReturnType<PreprocessSite> => {
+  return preprocessSites[siteName](preInfos);
 };
 
 
 const _2dfanPreprocessData: PreprocessSite = (preInfos) => {
-  return preInfos.map(preInfo => {
+  const { langTags: rawLang,
+    storyTags: rawStory,
+    gameTypeTags: rawGameType,
+    categoryTags: rawCategory,
+    platform: rawPlatform } = defaultGameTags;
+
+  const result = preInfos.map(preInfo => {
     const { platform, gameTags, categoryTags, langTags = [], storyTags, images, ageRestriction, ...rest } = preInfo;
     const excludedCategoryTags = [...rawGameType, ...rawStory, ...rawLang];
     const storyFilterTags = [...categoryTags, ...gameTags];
@@ -58,13 +61,21 @@ const _2dfanPreprocessData: PreprocessSite = (preInfos) => {
         categoryTags: excludeTags(rawCategory, [...categorySet]),
         langTags: excludeTags(rawLang, [...langSet]),
         storyTags: excludeTags(rawStory, [...storySet]),
-      }
+      },
     };
   });
+
+  return { list: result, raw: preInfos };
 };
 
 const dlsitePreprocessData: PreprocessSite = (preInfos) => {
-  return preInfos.map(preInfo => {
+  const { langTags: rawLang,
+    storyTags: rawStory,
+    gameTypeTags: rawGameType,
+    categoryTags: rawCategory,
+    platform: rawPlatform } = defaultGameTags;
+
+  const result = preInfos.map(preInfo => {
     const { platform, gameTags, categoryTags, langTags = [], storyTags, images, ageRestriction, ...rest } = preInfo;
 
     const platformSet = new Set(platform);
@@ -93,9 +104,10 @@ const dlsitePreprocessData: PreprocessSite = (preInfos) => {
         categoryTags: excludeTags(rawCategory, [...categorySet]),
         langTags: excludeTags(rawLang, langTags),
         storyTags: excludeTags(rawStory, [...storySet]),
-      }
+      },
     };
   });
+  return { list: result, raw: preInfos };
 };
 
 const preprocessSites: Record<GameInfoSourceSiteNames, PreprocessSite> = {

@@ -167,10 +167,10 @@ img {
 }
 .game-info .config li input,
 .game-info .config li textarea,
-.game-info .config li > div:nth-child(2),
+.game-info .config li > div:nth-child(3),
 .game-info .game-info-list li input,
 .game-info .game-info-list li textarea,
-.game-info .game-info-list li > div:nth-child(2) {
+.game-info .game-info-list li > div:nth-child(3) {
   width: auto;
   flex: 1 1 auto;
 }
@@ -252,15 +252,15 @@ img {
 .dialog .dialog-box {
   width: 92%;
   max-width: 500px;
-  height: 460px;
+  height: 490px;
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  padding: 0 10px 10px;
+  padding: 0 10px 8px;
 }
 .dialog .dialog-header {
   position: relative;
-  margin-top: 5px;
+  margin-top: 4px;
   height: 3rem;
   line-height: 3rem;
 }
@@ -279,7 +279,7 @@ img {
 }
 
 .tag-list {
-  height: 206px;
+  height: 190px;
   overflow-y: auto;
   display: flex;
   flex-wrap: wrap;
@@ -291,5 +291,18 @@ img {
   height: min-content;
   padding: 0px 5px;
   margin: 4px 3px;
+  cursor: pointer;
+}
+.tag-list li.button1-remove {
+  padding: 0 0 0 5px;
+}
+
+.add-tag {
+  height: 25px;
+}
+
+.remove-tag {
+  margin-left: 2px;
+  padding: 0 5px;
   cursor: pointer;
 }

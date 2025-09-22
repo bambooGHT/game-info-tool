@@ -53,6 +53,9 @@ export interface GameInfo extends Omit<GamePreviewInfoItem, "images" | "sourceUr
   images: { has_spoiler: boolean, url: string; }[];
 }
 
+export interface GameTagsArray extends Pick<GamePreviewInfoItem, "platform" | "categoryTags" | "langTags" | "storyTags"> {
+  gameTypeTags: string[];
+}
 export interface GameTags extends Pick<GameInfo, "platform" | "gameTypeTags" | "categoryTags" | "langTags" | "storyTags"> { }
 
 export interface ConfigData {

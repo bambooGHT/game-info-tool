@@ -22,7 +22,7 @@ export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageI
     platform, brand,
     gameTypeTags: gameTags, categoryTags,
     langTags, storyTags, seriesName,
-    orthrText = "", introduction, downloadUrl = ""
+    orthrText = "", introduction
   } = gameInfo;
 
   const images = gameInfo.images[0].url.includes("url=") ? gameInfo.images.map(p => {
@@ -36,7 +36,7 @@ export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageI
   const rows = [
     "🎮 " + translateName,
     name,
-    `\n🏭开发商     #${brand}`,
+    `\n🏭开发商 #${brand}`,
     formatTags("🖥运行平台 ", platform),
     formatTags("🌐语言 ", langTags),
     formatTags("📓剧情分类 ", storyTags),
@@ -49,8 +49,21 @@ export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageI
     ...introHead
   ].filter(Boolean).join("\n");;
 
-  const urlText = downloadUrl.trim() ? escapeMarkdownV2(`\n\n[下载地址](${downloadUrl})`) : "";
-  const resultText = escapeMarkdownV2(rows) + introFolded + urlText;
+  let downloadUrlText = gameInfo.downloadUrl?.trim() || "";
+  if (downloadUrlText) {
+    if (downloadUrlText.startsWith("http")) {
+      downloadUrlText = `\n\n[下载地址](${downloadUrlText})`;
+    } else {
+      downloadUrlText = "\n\n" + downloadUrlText.split("\n").map(text => {
+        const [title, url] = text.trim().split(" ");
+        if (url?.startsWith("http")) {
+          return `[${title}](${url})`;
+        }
+      }).filter(Boolean).join("\n");
+    }
+  }
+
+  const resultText = escapeMarkdownV2(rows) + introFolded + escapeMarkdownV2(downloadUrlText, ['(', ')']);
 
   sendTgMessage(configData, { images, message: resultText, messageIds }).then((res) => {
     const ids = (Array.isArray(res) ? res : [res]).map((msg: { message_id: number; }) => msg.message_id);
@@ -93,8 +106,13 @@ const splitIntroduction = (introduction: string) => {
 const formatTags = (title: string, set: Set<string>) =>
   set.size ? `${title}${[...set].map(tag => `#${tag}`).join(" ")}` : "";
 
-function escapeMarkdownV2(text: string) {
-  const reservedChars = ['_', '*', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
+function escapeMarkdownV2(text: string, excludeReservedChars: string[] = []) {
+  if (!text.length) return text;
+
+  let reservedChars = ['_', '*', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!', '(', ')'];
+  if (excludeReservedChars.length) {
+    reservedChars = reservedChars.filter(P => !excludeReservedChars.includes(P));
+  }
   const escapedChars = reservedChars.map(char => '\\' + char).join('');
   const regex = new RegExp(`([${escapedChars}])`, 'g');
   return text.replace(regex, '\\$1');
@@ -102,4 +120,4 @@ function escapeMarkdownV2(text: string) {
 
 function foldText(text: string) {
   return '**>' + text.split("\n").map(line => '> ' + line.trim()).join("\n") + "||";
-}
+};

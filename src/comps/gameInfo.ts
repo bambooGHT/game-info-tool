@@ -1,4 +1,5 @@
-import { currentGameInfo, currentGameTags, deleteCurrentGameImage, configData, updateConfigDataAt, addCurrentGameInfoTagAt, deleteCurrentGameInfoTagAt, updateCurrentGameInfoAt, telegramMessageIds, updateCurrentGameImageHasSpoiler } from "@/data";
+import { currentGameInfo, currentGameTags, deleteCurrentGameImage, configData, updateConfigDataAt, addCurrentGameInfoTagAt, deleteCurrentGameInfoTagAt, updateCurrentGameInfoAt, telegramMessageIds, updateCurrentGameImageHasSpoiler, addDefaultGameTagAt, removeDefaultGameTagAt } from "@/data";
+import { defaultGameTags } from "@/data/defaultData";
 import { sendMessage, sendRecord } from "@/data/sendMessage";
 import type { GameTags } from "@/types";
 import { defineComponent, h, ref, toRaw } from "vue";
@@ -34,6 +35,7 @@ const infoListEl = {
   setup() {
     const tagType = ref<keyof GameTags>("platform");
     const tagDialogShow = ref(false);
+    const tagValue = ref("");
     const toggleTagDialogShow = (tag?: keyof GameTags, value: boolean = false) => {
       tag && (tagType.value = tag);
       tagDialogShow.value = value;
@@ -45,8 +47,39 @@ const infoListEl = {
       ),
       h("hr", { style: "width: 100%; margin: 10px 0;border: 2px solid #e5e7eb" }),
       h("ul", { class: "tag-list" }, [...currentGameTags[tagType.value]].map(tag =>
-        h("li", { class: "button1", onClick: () => addCurrentGameInfoTagAt(tagType.value, tag) }, "#" + tag))
-      )
+        h("li",
+          { class: { "button1": true, "button1-remove": defaultGameTags[tagType.value].includes(tag) }, onClick: () => addCurrentGameInfoTagAt(tagType.value, tag) },
+          defaultGameTags[tagType.value].includes(tag) ?
+            ["#" + tag, h("span", {
+              class: "remove-tag", innerHTML: "&#x2716;", onClick: (e) => {
+                e.stopPropagation();
+                removeDefaultGameTagAt(tagType.value, tag);
+              }
+            })]
+            : "#" + tag
+        ))
+      ),
+      h("hr", { style: "width: 100%; margin: 10px 0;border: 1px solid #e5e7eb" }),
+      h("div", { class: "add-tag" }, [
+        h("input", {
+          style: "width: 190px; margin-right: 10px",
+          type: "text", id: "add-tag", placeholder: "add tag",
+          value: tagValue.value,
+          onInput: (e: any) => tagValue.value = e.target.value,
+          onKeydown: (e: any) => {
+            if (e.key === "Enter") {
+              addDefaultGameTagAt(tagType.value, tagValue.value);
+              tagValue.value = "";
+            }
+          }
+        }),
+        h("button", {
+          class: "button1", onClick: () => {
+            addDefaultGameTagAt(tagType.value, tagValue.value);
+            tagValue.value = "";
+          }
+        }, "add")
+      ])
     ];
 
     const list1 = () => [
@@ -80,7 +113,7 @@ const infoListEl = {
       ]),
       ...tagElNameItems.map(([name1, name2]) => h("li", [
         h("div", { class: "title" }, name1),
-        ...[...currentGameInfo[name2]].map(createTagEl),
+        h("div", [...currentGameInfo[name2]].map(createTagEl)),
         createIconEl(() => toggleTagDialogShow(name2, true))
       ])),
     ];
@@ -109,8 +142,10 @@ const infoListEl = {
       ]),
       h("li", [
         h("div", { class: "title" }, "下载地址"),
-        h("input", {
-          type: "text", id: "download-url", placeholder: "download url",
+        h("textarea", {
+          style: "resize: none; height:70px;",
+          id: "download-url",
+          placeholder: "download url",
           value: currentGameInfo.downloadUrl,
           onChange: (e: any) => updateCurrentGameInfoAt("downloadUrl", e.target.value)
         })

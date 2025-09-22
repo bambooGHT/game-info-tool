@@ -9,7 +9,12 @@ export const searchBox = () => {
       placeholder: "search game",
       onInput: (e: any) => SearchText.value = e.target.value,
       onChange: resetData,
-      onKeydown: (e: any) => e.key === "Enter" && getGamePreviewInfo(SearchText.value)
+      onKeydown: (e: any) => {
+        if (e.key === "Enter") {
+          (e.target as HTMLInputElement).blur();
+          getGamePreviewInfo(SearchText.value);
+        }
+      }
     }),
     h("button", { class: "button1", onclick: () => getGamePreviewInfo(SearchText.value) }, "search")
   ]);
