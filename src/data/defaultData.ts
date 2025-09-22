@@ -4,7 +4,7 @@ export const siteNames: GameInfoSourceSiteNames[] = ["2DFan", "DLsite"];
 
 export const defaultGameTags: GameTagsArray = (() => {
   let result = JSON.parse(localStorage.getItem("defaultGameTags") ?? `{}`);
-  if (!Object.keys(result)) {
+  if (!Object.keys(result).length) {
     result = {
       /** 平台标签 */
       platform: ["Windows", "安卓"],
