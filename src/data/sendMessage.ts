@@ -62,7 +62,8 @@ export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageI
       }).filter(Boolean).join("\n");
     }
   }
-
+  console.log(rows + downloadUrlText);
+  
   const resultText = escapeMarkdownV2(rows) + introFolded + escapeMarkdownV2(downloadUrlText, ['(', ')']);
 
   sendTgMessage(configData, { images, message: resultText, messageIds }).then((res) => {
@@ -100,7 +101,7 @@ const splitIntroduction = (introduction: string) => {
 
   const introFolded = introLines.length ? "\n" + foldText(escapeMarkdownV2(introLines.join("\n"))) : "";
 
-  return { introHead, introFolded };
+  return { introHead, introFolded, rawText: introLines.join("\n") };
 };
 
 const formatTags = (title: string, set: Set<string>) =>
