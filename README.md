@@ -19,7 +19,7 @@ GET /search?text=example&website=2DFan
 ``` ts
 interface SearchResult {
   success: boolean;
-  data: Array<{
+  data: null | Array<{
     /** 游戏名 */
     name: string,
     /** 翻译名 */
@@ -35,7 +35,7 @@ interface SearchResult {
     /** 发售平台 */
     platform: string[];
     /** 游戏标签 */
-    gameTags: string[];
+    gameTypeTags: string[];
     /** 类别标签 */
     categoryTags: string[];
     /** 类别标签 */

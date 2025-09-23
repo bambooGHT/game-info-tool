@@ -2,22 +2,30 @@ import axios from "axios";
 import { JSDOM } from 'jsdom';
 import type { GamePreviewInfo } from "../types";
 import { DLsiteConstants } from "./constants";
+import type { RouteContext } from "@/types";
 
-export const DLsite = async (text: string): Promise<GamePreviewInfo[]> => {
+let dl_cookie = "";
+
+const headers: Record<string, string> = {
+  "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+  "accept-language": "zh-TW,zh;q=0.9",
+  "sec-ch-ua": "\"Not;A=Brand\";v=\"99\", \"Google Chrome\";v=\"139\", \"Chromium\";v=\"139\"",
+  "sec-ch-ua-platform": "\"Windows\"",
+  "upgrade-insecure-requests": "1",
+};
+
+export const DLsite = async (text: string, routeContext: RouteContext): Promise<GamePreviewInfo[]> => {
+  dl_cookie = routeContext["dlsite-cookie"];
   const urlList = await searchGame(text.replaceAll(" ", "+"));
-  
   return urlList ? Promise.all(urlList.map(getGameInfo)) : [];
 };
 
 const reqDLsiteGameInfo = async (url: string) => {
   const res = await axios.get(url, {
     headers: {
-      "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-      "accept-language": "zh-TW,zh;q=0.9",
-      "sec-ch-ua": "\"Not;A=Brand\";v=\"99\", \"Google Chrome\";v=\"139\", \"Chromium\";v=\"139\"",
-      "sec-ch-ua-platform": "\"Windows\"",
-      "upgrade-insecure-requests": "1",
-    },
+      ...headers,
+      ...(dl_cookie ? { Cookie: dl_cookie } : {})
+    }
   });
 
   return res.data;

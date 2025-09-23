@@ -28,3 +28,8 @@ export const ImgProxy = Type.Object({
 
 export type SearchType = Static<typeof Search>;
 export type ImgProxyType = Static<typeof ImgProxy>;
+
+
+export interface RouteContext {
+  "dlsite-cookie": string;
+}
