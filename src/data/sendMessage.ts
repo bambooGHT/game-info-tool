@@ -18,19 +18,13 @@ export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageI
   const messageIds = messageIdStr ? messageIdStr.split(" ").map(p => p.trim()).filter(Boolean) : undefined;
 
   const { translateName, name,
-    releaseDate,
+    releaseDate, images,
     platform, brand,
     gameTypeTags, categoryTags,
     langTags, storyTags, seriesName,
     orthrText = "", introduction
   } = gameInfo;
 
-  const images = gameInfo.images[0].url.includes("url=") ? gameInfo.images.map(p => {
-    return {
-      has_spoiler: p.has_spoiler,
-      url: p.url.split("url=")[1]
-    };
-  }) : gameInfo.images;
   const { introHead, introFolded } = splitIntroduction(introduction);
 
   const rows = [
@@ -42,7 +36,7 @@ export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageI
     formatTags("📓剧情分类 ", storyTags),
     formatTags("🌟游戏类型 ", gameTypeTags),
     formatTags("🏷︎内容分类 ", categoryTags),
-    `🗓发售日期 ${releaseDate.replace(/(\d{4})-(\d{2})-(\d{2})/, "#$1年$2月 $3日")}`,
+    `🗓发售日期 #${releaseDate}`,
     seriesName ? `系列名 #${seriesName}` : "",
     orthrText.trim() ? `\n${orthrText}` : "",
     introHead.length ? `\n📜 —————游戏介绍——————\n` : "",

@@ -22,7 +22,7 @@ img {
 .game-preview-info {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 375px;
+  grid-auto-columns: 368px;
   overflow: auto hidden;
   gap: 0 15px;
   padding-bottom: 5px;
@@ -139,19 +139,23 @@ img {
 .game-info .tag {
   color: rgba(0, 43, 183, 0.7725490196);
 }
-.game-info .game-info-image {
+.game-info .game-info-images-row {
+  display: flex;
+}
+.game-info .game-info-images {
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
+  min-height: 126px;
 }
-.game-info .game-info-image img {
+.game-info .game-info-images img {
   height: 100px;
   margin-right: 5px;
 }
-.game-info .game-info-image div {
+.game-info .game-info-images div {
   text-align: center;
 }
-.game-info .game-info-image div input {
+.game-info .game-info-images div input {
   margin-top: 0.5rem;
 }
 .game-info .game-info-list-box {

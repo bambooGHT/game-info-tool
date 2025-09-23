@@ -19,7 +19,7 @@ const _2dfanPreprocessData: PreprocessSite = (preInfos) => {
     platform: rawPlatform } = defaultGameTags;
 
   const result = preInfos.map(preInfo => {
-    const { platform, gameTypeTags, categoryTags, langTags = [], storyTags, images, ageRestriction, ...rest } = preInfo;
+    const { platform, gameTypeTags, categoryTags, langTags = [], storyTags, images, ageRestriction, releaseDate, ...rest } = preInfo;
     const excludedCategoryTags = [...rawGameType, ...rawStory, ...rawLang];
     const storyFilterTags = [...categoryTags, ...gameTypeTags];
 
@@ -43,7 +43,6 @@ const _2dfanPreprocessData: PreprocessSite = (preInfos) => {
     storyTags.forEach(p => storySet.add(p));
 
     const imgs = images.map(p => ({ has_spoiler: false, url: p }));
-
     return {
       gameInfo: {
         ...rest,
@@ -52,7 +51,8 @@ const _2dfanPreprocessData: PreprocessSite = (preInfos) => {
         gameTypeTags: gameTypeSet,
         categoryTags: categorySet,
         langTags: langSet,
-        storyTags: storySet
+        storyTags: storySet,
+        releaseDate: formatReleaseDate(releaseDate)
       },
       tags: {
         platform: excludeTags(rawPlatform, platform),
@@ -75,7 +75,7 @@ const dlsitePreprocessData: PreprocessSite = (preInfos) => {
     platform: rawPlatform } = defaultGameTags;
 
   const result = preInfos.map(preInfo => {
-    const { platform, gameTypeTags, categoryTags, langTags = [], storyTags, images, ageRestriction, ...rest } = preInfo;
+    const { platform, gameTypeTags, categoryTags, langTags = [], storyTags, images, ageRestriction, releaseDate, ...rest } = preInfo;
 
     const platformSet = new Set(platform);
     const gameTypeSet = new Set(gameTypeTags);
@@ -95,7 +95,8 @@ const dlsitePreprocessData: PreprocessSite = (preInfos) => {
         gameTypeTags: gameTypeSet,
         categoryTags: categorySet,
         langTags: langSet,
-        storyTags: storySet
+        storyTags: storySet,
+        releaseDate: formatReleaseDate(releaseDate)
       },
       tags: {
         platform: excludeTags(rawPlatform, platform),
@@ -112,4 +113,8 @@ const dlsitePreprocessData: PreprocessSite = (preInfos) => {
 const preprocessSites: Record<GameInfoSourceSiteNames, PreprocessSite> = {
   "2DFan": _2dfanPreprocessData,
   "DLsite": dlsitePreprocessData
+};
+
+const formatReleaseDate = (releaseDate: string) => {
+  return releaseDate.replace(/(\d{4})-(\d{2})-(\d{2})/, "$1年$2月 $3日");
 };

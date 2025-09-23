@@ -1,4 +1,4 @@
-import { currentGameInfo, currentGameTags, deleteCurrentGameImage, configData, updateConfigDataAt, addCurrentGameInfoTagAt, deleteCurrentGameInfoTagAt, updateCurrentGameInfoAt, telegramMessageIds, updateCurrentGameImageHasSpoiler, addDefaultGameTagAt, removeDefaultGameTagAt } from "@/data";
+import { currentGameInfo, currentGameTags, deleteCurrentGameImage, configData, updateConfigDataAt, addCurrentGameInfoTagAt, deleteCurrentGameInfoTagAt, updateCurrentGameInfoAt, telegramMessageIds, updateCurrentGameImageHasSpoiler, addDefaultGameTagAt, removeDefaultGameTagAt, addCurrentGameImage, uploadGameImage } from "@/data";
 import { defaultGameTags } from "@/data/defaultData";
 import { sendMessage, sendRecord } from "@/data/sendMessage";
 import type { GameTags } from "@/types";
@@ -14,21 +14,51 @@ const tagElNameItems: [string, keyof GameTags][] = [
 
 export const gameInfoBox = () => {
   return h("section", { class: "game-info" }, [
-    imagesEl(),
+    h(imagesEl),
     h("ul", { class: "game-info-list-box" }, h(infoListEl)),
     h(bottomEl)
   ]);
 };
 
-const imagesEl = () => {
-  const title = h("div", { class: "title", style: "margin: 5px 0;" }, "图片列表");
-  const imageList = h("div", { class: "game-info-image" }, currentGameInfo.images.map(item => {
-    return h("div", [
-      h("img", { src: item.url, onClick: () => deleteCurrentGameImage(item.url) }),
-      h("input", { type: "checkbox", checked: item.has_spoiler, onChange: () => updateCurrentGameImageHasSpoiler(item) })
+const imagesEl = {
+  setup() {
+    const imageUrl = ref("");
+    const addImage = () => {
+      if (!imageUrl.value || !imageUrl.value.startsWith("http")) return;
+      addCurrentGameImage(imageUrl.value);
+      imageUrl.value = "";
+    };
+
+    const title = () => h("div", { class: "game-info-images-row" }, [
+      h("div", { class: "title", style: "margin: 5px 5px 5px 0;font-size: 16px" }, "图片列表"),
+
+      h("input", {
+        type: "text", id: "image-url", placeholder: "image url",
+        style: "width: 240px;",
+        value: imageUrl.value,
+        onInput: (e: any) => {
+          imageUrl.value = e.target.value;
+        },
+        onKeydown: (e: any) => {
+          if (e.key === "Enter") addImage();
+        }
+      }),
+      h("button", {
+        class: "button1",
+        style: " margin:0 10px", onClick: addImage
+      }, "添加"),
+      h("button", { class: "button1", onClick: uploadGameImage }, "上传"),
     ]);
-  }));
-  return h("div", [title, imageList]);
+
+    const imageList = () => h("div", { class: "game-info-images" }, currentGameInfo.images.map(item => {
+      return h("div", [
+        h("img", { src: item.url, onClick: () => deleteCurrentGameImage(item.url) }),
+        h("input", { type: "checkbox", checked: item.has_spoiler, onChange: () => updateCurrentGameImageHasSpoiler(item) })
+      ]);
+    }));
+
+    return () => h("div", [title(), imageList()]);
+  }
 };
 
 const infoListEl = {
@@ -36,9 +66,16 @@ const infoListEl = {
     const tagType = ref<keyof GameTags>("platform");
     const tagDialogShow = ref(false);
     const tagValue = ref("");
+
     const toggleTagDialogShow = (tag?: keyof GameTags, value: boolean = false) => {
       tag && (tagType.value = tag);
       tagDialogShow.value = value;
+    };
+
+    const addTag = () => {
+      if (!tagValue.value) return;
+      addDefaultGameTagAt(tagType.value, tagValue.value);
+      tagValue.value = "";
     };
 
     const tagBox = () => [
@@ -67,17 +104,11 @@ const infoListEl = {
           value: tagValue.value,
           onInput: (e: any) => tagValue.value = e.target.value,
           onKeydown: (e: any) => {
-            if (e.key === "Enter") {
-              addDefaultGameTagAt(tagType.value, tagValue.value);
-              tagValue.value = "";
-            }
+            if (e.key === "Enter") addTag();
           }
         }),
         h("button", {
-          class: "button1", onClick: () => {
-            addDefaultGameTagAt(tagType.value, tagValue.value);
-            tagValue.value = "";
-          }
+          class: "button1", onClick: addTag
         }, "add")
       ])
     ];
@@ -86,14 +117,18 @@ const infoListEl = {
       h("li", [
         h("div", { class: "title" }, "译名"),
         h("input", {
-          type: "text", id: "game-name", placeholder: "game name",
+          type: "text", id: "game-translateName", placeholder: "game translateName",
           value: currentGameInfo.translateName,
           onChange: (e: any) => updateCurrentGameInfoAt("translateName", e.target.value)
         })
       ]),
       h("li", [
         h("div", { class: "title" }, "游戏名"),
-        h("div", currentGameInfo.name)
+        h("input", {
+          type: "text", id: "game-name", placeholder: "game name",
+          value: currentGameInfo.name,
+          onChange: (e: any) => updateCurrentGameInfoAt("name", e.target.value)
+        })
       ]),
       h("li", [
         h("div", { class: "title" }, "开发商"),
@@ -119,7 +154,14 @@ const infoListEl = {
     ];
 
     const list2 = () => [
-      h("li", [h("div", { class: "title" }, "发布日期"), h("div", currentGameInfo.releaseDate.replace(/(\d{4})-(\d{2})-(\d{2})/, "#$1年$2月 $3日"))]),
+      h("li", [
+        h("div", { class: "title" }, "发布日期"),
+        h("input", {
+          type: "text", id: "game-releaseDate", placeholder: "game releaseDate",
+          value: currentGameInfo.releaseDate,
+          onChange: (e: any) => updateCurrentGameInfoAt("releaseDate", e.target.value)
+        })
+      ]),
       h("li", [
         h("div", { class: "title" }, "其他文本"),
         h("textarea", {
@@ -188,6 +230,14 @@ const bottomEl = {
             type: "text", id: "api-url", placeholder: "api url",
             value: configData.API_Url,
             onChange: (e: any) => updateConfigDataAt("API_Url", e.target.value)
+          })
+        ]),
+        h("li", [
+          h("div", { class: "title" }, "dl cookie"),
+          h("input", {
+            type: "text", id: "dl-cookie", placeholder: "dl cookie",
+            value: configData.dlsiteCookie,
+            onChange: (e: any) => updateConfigDataAt("dlsiteCookie", e.target.value)
           })
         ])
       ]);

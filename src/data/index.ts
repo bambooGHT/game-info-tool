@@ -1,5 +1,5 @@
 import { SearchStatus } from "@/enums";
-import { reqGameInfo, updateApiUrl } from "@/services/api";
+import { reqGameInfo, updateApiConfig } from "@/services/api";
 import type { GameInfo, GameInfoSourceSite, GameInfoSourceSiteNames, GamePreviewInfoItem, GameTags, ConfigData } from "@/types";
 import { reactive, ref } from "vue";
 import { defaultGameTags, defaultGameInfo, siteNames, addDefaultGameTag, removeDefaultGameTag } from "./defaultData";
@@ -36,9 +36,9 @@ export const currentGameTags = reactive({} as GameTags);
 export const telegramMessageIds = ref("");
 export const configData = (() => {
   const result: ConfigData = JSON.parse(localStorage.getItem("configData") ?? `{ "botToken": "", "chatId": "", "API_Url":"" }`);
-  if (result.API_Url) {
+  if (result.API_Url || result.dlsiteCookie) {
     result.API_Url = result.API_Url.replace(/\/$/, '');
-    updateApiUrl(result.API_Url);
+    updateApiConfig({ baseURL: result.API_Url, dlsiteCookie: result.dlsiteCookie });
   }
   return result;
 })();
@@ -94,6 +94,7 @@ export const getGamePreviewInfo = async (gameName: string, reqSite?: GameInfoSou
     newDataItem.categoryTags = [...gameInfo.categoryTags];
     newDataItem.langTags = [...gameInfo.langTags];
     newDataItem.storyTags = [...gameInfo.storyTags];
+    newDataItem.releaseDate = gameInfo.releaseDate;
   });
   gamePreviewInfoList[reqSite] = newData;
 };
@@ -105,10 +106,26 @@ const resetPreprocessGameInfoData = () => {
   });
 };
 
-export const addCurrentGameImage = (img: string) => {
+export const addCurrentGameImage = (img: string, file?: File) => {
   if (currentGameInfo.images.length >= 10) return;
   if (currentGameInfo.images.findIndex(item => item.url === img) !== -1) return;
-  currentGameInfo.images.push({ has_spoiler: false, url: img });
+  currentGameInfo.images.push({ has_spoiler: false, file, url: img });
+};
+
+export const uploadGameImage = async () => {
+  const [fileHandle] = await window.showOpenFilePicker({
+    multiple: false,
+    types: [{
+      description: 'Images',
+      accept: {
+        'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.tiff']
+      },
+    }]
+  });
+
+  const file = await fileHandle.getFile();
+  const url = URL.createObjectURL(file);
+  addCurrentGameImage(url, file);
 };
 
 export const deleteCurrentGameImage = (img: string) => {
@@ -153,9 +170,9 @@ export const updateCurrentGameInfoAt = (key: keyof GameInfo, value: string) => {
 };
 
 export const updateConfigDataAt = (key: keyof ConfigData, value: string) => {
-  if (key === "API_Url") {
+  if (key === "API_Url" || key === "dlsiteCookie") {
     value = value.replace(/\/$/, '');
-    updateApiUrl(value);
+    updateApiConfig({ ["dlsiteCookie"]: value });
   }
   configData[key] = value;
   localStorage.setItem("configData", JSON.stringify(configData));

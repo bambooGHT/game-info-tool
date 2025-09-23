@@ -22,7 +22,7 @@ img {
 .game-preview-info {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 375px;
+  grid-auto-columns: 368px;
   overflow: auto hidden;
   gap: 0 15px;
   padding-bottom: 5px;
@@ -144,11 +144,14 @@ img {
   .tag {
     color: #002bb7c5;
   }
-
-  .game-info-image {
+  .game-info-images-row {
+    display: flex;
+  }
+  .game-info-images {
     display: flex;
     overflow-x: auto;
     overflow-y: hidden;
+    min-height: 126px;
     img {
       height: 100px;
       margin-right: 5px;

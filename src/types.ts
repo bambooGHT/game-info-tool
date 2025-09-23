@@ -41,6 +41,7 @@ export interface GamePreviewInfoItem {
   introduction: string;
 }
 
+export interface GameInfoImages { has_spoiler: boolean, file?: File, url: string; }
 export interface GameInfo extends Omit<GamePreviewInfoItem, "images" | "sourceUrl" | "platform" | "gameTypeTags" | "categoryTags" | "langTags" | "storyTags" | "ageRestriction"> {
   platform: Set<string>;
   gameTypeTags: Set<string>;
@@ -50,7 +51,7 @@ export interface GameInfo extends Omit<GamePreviewInfoItem, "images" | "sourceUr
   /** 下载Url */
   downloadUrl?: string;
   orthrText?: string;
-  images: { has_spoiler: boolean, url: string; }[];
+  images: GameInfoImages[];
 }
 
 export interface GameTagsArray extends Pick<GamePreviewInfoItem, "platform" | "categoryTags" | "langTags" | "storyTags"> {
@@ -62,6 +63,7 @@ export interface ConfigData {
   botToken: string;
   chatId: string;
   API_Url: string;
+  dlsiteCookie: string;
 }
 
 export interface SendRecord {

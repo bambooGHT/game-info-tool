@@ -5,12 +5,14 @@ type CacheEntry<T> = {
   promise?: Promise<T>;
 };
 
-let GAME_INFO_API = "";
-
-export const updateApiUrl = (url: string) => {
-  GAME_INFO_API = url;
+let apiConfig = {
+  baseURL: "",
+  dlsiteCookie: ""
 };
 
+export const updateApiConfig = (config: Partial<typeof apiConfig>) => {
+  apiConfig = { ...apiConfig, ...config };
+};
 const cache = new Map<string, CacheEntry<GamePreviewInfoItem[] | null>>();
 
 export const reqGameInfo = async (name: string, site: string, isCache?: boolean): Promise<GamePreviewInfoItem[] | null> => {
@@ -39,7 +41,13 @@ export const reqGameInfo = async (name: string, site: string, isCache?: boolean)
 };
 
 const getGameInfo = async (name: string, site: string) => {
-  const res = await fetch(`${GAME_INFO_API}/search?text=${name}&website=${site}`);
+  const res = await fetch(`${apiConfig.baseURL}/search?text=${name}&website=${site}`, {
+    method: 'GET',
+    headers: {
+      "DLsite-Cookie": apiConfig.dlsiteCookie
+    },
+
+  });
   const { data } = await res.json();
   return data;
 };
