@@ -141,6 +141,7 @@ img {
 }
 .game-info .game-info-images-row {
   display: flex;
+  margin-bottom: 5px;
 }
 .game-info .game-info-images {
   display: flex;
