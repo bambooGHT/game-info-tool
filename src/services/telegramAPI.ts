@@ -1,12 +1,20 @@
 import type { ConfigData, GameInfoImages } from "@/types";
 
-type Info = { images: GameInfoImages[], message: string; messageIds?: (string | number)[]; };
+type Info = { images: GameInfoImages[], message: string; };
 type sendData = Omit<Info, "messageIds">;
-type MessageParams = { type: string; media: string; caption?: string; parse_mode?: string; };
+type MessageParams = { type: string; media: string; caption?: string; parse_mode?: string; has_spoiler: boolean; };
 type TelegramData = Omit<ConfigData, "API_Url">;
 const TELEGRAM_API = `https://api.telegram.org/bot`;
 
-const deleteMessage = async (telegramData: TelegramData, ids: (number | string)[]) => {
+export const sendTgMessage = async (telegramData: TelegramData, info: Info) => {
+  if (info.images.length === 1) {
+    return sendPhoto(telegramData, info);
+  }
+
+  return sendMediaGroup(telegramData, info);
+};
+
+export const deleteTgMessage = async (telegramData: TelegramData, ids: (number | string)[]) => {
   for (const item of ids) {
     await fetch(`${TELEGRAM_API}${telegramData.botToken}/deleteMessage`, {
       method: "POST",
@@ -18,6 +26,53 @@ const deleteMessage = async (telegramData: TelegramData, ids: (number | string)[
         message_id: item
       })
     });
+  }
+};
+
+export const editMessage = async (telegramData: TelegramData, info: sendData, ids: number[]) => {
+  const { chatId, botToken } = telegramData;
+  const { message, images } = info;
+
+  if (!images.length) {
+    await send("editMessageCaption", telegramData.botToken, {
+      chat_id: telegramData.chatId,
+      message_id: ids[0],
+      caption: message,
+      parse_mode: "MarkdownV2",
+    });
+    return;
+  }
+
+  for (let i = 0; i < images.length; i++) {
+    const image = images[i];
+    const id = ids[i];
+
+    const isLocal = image.file || image.url.includes("imgProxy");
+    const media: MessageParams = { type: 'photo', media: image.url, has_spoiler: image.has_spoiler };
+    if (i === 0) {
+      media.caption = message;
+      media.parse_mode = "MarkdownV2";
+    }
+
+    if (isLocal) {
+      const data = image.file || await (await fetch(image.url)).blob();
+      const mediaName = `attach://newphoto${i}`;
+      media.media = mediaName;
+
+      const formData = new FormData();
+      formData.append('chat_id', chatId);
+      formData.append('message_id', "" + id);
+      formData.append(`newphoto${i}`, data);
+      formData.append('media', JSON.stringify(media));
+
+      sendFormData("editMessageMedia", botToken, formData);
+    } else {
+      await send("editMessageMedia", telegramData.botToken, {
+        chat_id: telegramData.chatId,
+        message_id: id,
+        media
+      });
+    }
   }
 };
 
@@ -42,18 +97,6 @@ const sendFormData = async (api: string, token: string, formData: FormData) => {
 
   const data = await res.json();
   return data.result;
-};
-
-export const sendTgMessage = async (telegramData: TelegramData, info: Info) => {
-  if (info.messageIds?.length) {
-    await deleteMessage(telegramData, info.messageIds!);
-  }
-
-  if (info.images.length === 1) {
-    return sendPhoto(telegramData, info);
-  }
-
-  return sendMediaGroup(telegramData, info);
 };
 
 const sendPhoto = async (telegramData: TelegramData, info: sendData) => {
@@ -111,7 +154,6 @@ const sendMediaGroup = async (telegramData: TelegramData, info: sendData) => {
 
     formData.append('chat_id', chatId);
     formData.append('media', JSON.stringify(media));
-    console.log(media);
 
     return sendFormData("sendMediaGroup", botToken, formData);
   } else {

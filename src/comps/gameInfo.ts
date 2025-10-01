@@ -1,6 +1,7 @@
-import { currentGameInfo, currentGameTags, deleteCurrentGameImage, configData, updateConfigDataAt, addCurrentGameInfoTagAt, deleteCurrentGameInfoTagAt, updateCurrentGameInfoAt, telegramMessageIds, updateCurrentGameImageHasSpoiler, addDefaultGameTagAt, removeDefaultGameTagAt, addCurrentGameImage, uploadGameImage } from "@/data";
+import { currentGameInfo, currentGameTags, deleteCurrentGameImage, configData, updateConfigDataAt, addCurrentGameInfoTagAt, deleteCurrentGameInfoTagAt, updateCurrentGameInfoAt, updateCurrentGameImageHasSpoiler, addDefaultGameTagAt, removeDefaultGameTagAt, addCurrentGameImage, uploadGameImage, replaceCurrentGameInfoFormRecord } from "@/data";
 import { defaultGameTags } from "@/data/defaultData";
-import { sendMessage, sendRecord } from "@/data/sendMessage";
+import { messageRecord } from "@/data/messageRecord";
+import { deleteMessage, sendMessage } from "@/data/TgMessage";
 import type { GameTags } from "@/types";
 import { defineComponent, h, ref, toRaw } from "vue";
 
@@ -57,7 +58,11 @@ const imagesEl = {
       ]);
     }));
 
-    return () => h("div", [title(), imageList()]);
+    return () => h("div", [
+      title(),
+      imageList(),
+      currentGameInfo.ids ? h("p", { style: "color: red;" }, "图片只能替换不能增删,按顺序替换,留空则不处理") : null
+    ]);
   }
 };
 
@@ -244,11 +249,14 @@ const bottomEl = {
     };
 
     const recordBox = () => {
-      return h("ul", { class: "record" }, sendRecord.map(item => h("li", [
-        h("div", { class: "title" }, item.translateName),
-        h("div", { class: "title" }, item.name),
-        h("div", { class: "title" }, item.sendTime),
-        h("input", { readonly: true, value: item.ids.join(" ") })
+      return h("ul", { class: "record" }, messageRecord.map(({ data, tags, messageIds, imageNumber, messageLink, sendTime }) => h("li", [
+        data.translateName ? h("div", { class: "title" }, data.translateName) : null,
+        h("div", { class: "title" }, data.name),
+        h("div", { class: "title" }, `图片*${imageNumber}`),
+        h("div", { class: "title" }, sendTime),
+        h("button", { class: "button1", onClick: () => copyText(messageLink) }, "复制消息链接"),
+        h("button", { class: "button1", onClick: () => replaceCurrentGameInfoFormRecord(data, tags) }, "修改消息"),
+        h("button", { class: "button1", onClick: () => deleteMessage(configData, messageIds) }, "删除消息"),
       ])));
     };
 
@@ -257,15 +265,7 @@ const bottomEl = {
         h("div", [
           h("button", { class: "button1", onClick: () => showSendRecordDialog.value = true }, "记录"),
           h("button", { class: "button1", onClick: () => showSettingDialog.value = true }, "设置"),
-        ]),
-        h("div", [
-
-          h("input", {
-            type: "text", id: "delete-message-id", placeholder: "delete message ids",
-            value: telegramMessageIds.value,
-            onChange: (e: any) => telegramMessageIds.value = e.target.value
-          }),
-          h("button", { class: "button1", onClick: () => sendMessage(configData, toRaw(currentGameInfo), telegramMessageIds.value) }, "发送"),
+          h("button", { class: "button1", onClick: () => sendMessage(configData, toRaw(currentGameInfo), toRaw(currentGameTags)) }, "发送"),
         ]),
       ]),
       showSettingDialog.value ? h(createDialog, { title: "设置", onShow: () => showSettingDialog.value = false }, settingBox) : null,
@@ -318,3 +318,15 @@ const createDialog = defineComponent<{ title: string; }, ["show"]>((props, { emi
   ]);
   return () => h("div", { class: "dialog", onClick: closeDialog }, h("div", { class: "dialog-box" }, [header, slots.default!()]));
 }, { props: ['title'] });
+
+
+const copyText = (text: string) => {
+  navigator.clipboard.writeText(text).catch(() => {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+  });
+};

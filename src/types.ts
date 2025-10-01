@@ -43,6 +43,7 @@ export interface GamePreviewInfoItem {
 
 export interface GameInfoImages { has_spoiler: boolean, file?: File, url: string; }
 export interface GameInfo extends Omit<GamePreviewInfoItem, "images" | "sourceUrl" | "platform" | "gameTypeTags" | "categoryTags" | "langTags" | "storyTags" | "ageRestriction"> {
+  ids?: number[];
   platform: Set<string>;
   gameTypeTags: Set<string>;
   categoryTags: Set<string>;
@@ -54,9 +55,7 @@ export interface GameInfo extends Omit<GamePreviewInfoItem, "images" | "sourceUr
   images: GameInfoImages[];
 }
 
-export interface GameTagsArray extends Pick<GamePreviewInfoItem, "platform" | "categoryTags" | "langTags" | "storyTags"> {
-  gameTypeTags: string[];
-}
+export interface GameTagsArray extends Pick<GamePreviewInfoItem, "platform" | "gameTypeTags" | "categoryTags" | "langTags" | "storyTags"> { }
 export interface GameTags extends Pick<GameInfo, "platform" | "gameTypeTags" | "categoryTags" | "langTags" | "storyTags"> { }
 
 export interface ConfigData {
@@ -66,9 +65,22 @@ export interface ConfigData {
   dlsiteCookie: string;
 }
 
-export interface SendRecord {
-  name: string;
-  translateName: string;
-  ids: number[];
+export interface MessageRecord {
+  data: GameInfo;
+  tags: GameTags;
+  imageNumber: number;
+  messageIds: number[];
+  messageLink: string;
   sendTime: string;
+}
+
+export interface TgSendResult {
+  "message_id": number,
+  "chat": {
+    "id": number,
+    "title": string,
+    "username": string,
+    "type": string;
+  },
+  "date": number,
 }

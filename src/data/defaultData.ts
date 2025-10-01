@@ -18,9 +18,11 @@ export const defaultGameTags: GameTagsArray = (() => {
       storyTags: ['全年龄', "R18", '拔作', '正常向', '乙女向', '猎奇', '恐怖', '血腥', '纯爱']
     };
   }
-  
+
   return result;
 })();
+
+export const gameTagKeys = Object.keys(defaultGameTags) as (keyof GameTagsArray)[];
 
 export const defaultGameInfo: GameInfo = {
   "name": "",

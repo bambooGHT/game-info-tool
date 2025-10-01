@@ -2,7 +2,7 @@ import { SearchStatus } from "@/enums";
 import { reqGameInfo, updateApiConfig } from "@/services/api";
 import type { GameInfo, GameInfoSourceSite, GameInfoSourceSiteNames, GamePreviewInfoItem, GameTags, ConfigData } from "@/types";
 import { reactive, ref } from "vue";
-import { defaultGameTags, defaultGameInfo, siteNames, addDefaultGameTag, removeDefaultGameTag } from "./defaultData";
+import { defaultGameTags, defaultGameInfo, siteNames, addDefaultGameTag, removeDefaultGameTag, gameTagKeys } from "./defaultData";
 import { preprocessGameInfoData, type PreprocessSite } from "./preprocessGameInfoData";
 
 export const SearchText = ref("");
@@ -33,7 +33,6 @@ export const currentGameInfo = reactive(structuredClone(defaultGameInfo));
 
 export const currentGameTags = reactive({} as GameTags);
 
-export const telegramMessageIds = ref("");
 export const configData = (() => {
   const result: ConfigData = JSON.parse(localStorage.getItem("configData") ?? `{ "botToken": "", "chatId": "", "API_Url":"" }`);
   if (result.API_Url || result.dlsiteCookie) {
@@ -44,17 +43,12 @@ export const configData = (() => {
 })();
 
 const resetCurrentGameTags = () => {
-  Object.assign(currentGameTags, {
-    platform: new Set(defaultGameTags.platform),
-    gameTypeTags: new Set(defaultGameTags.gameTypeTags),
-    categoryTags: new Set(defaultGameTags.categoryTags),
-    langTags: new Set(defaultGameTags.langTags),
-    storyTags: new Set(defaultGameTags.storyTags)
-  });
+  Object.assign(currentGameTags, Object.fromEntries(
+    gameTagKeys.map(key => [key, new Set(defaultGameTags[key])])
+  ));
 };
 
 export const resetData = () => {
-  telegramMessageIds.value = "";
   Object.assign(currentGameInfo, structuredClone(defaultGameInfo));
   resetCurrentGameTags();
   siteNames.forEach(item => {
@@ -89,11 +83,9 @@ export const getGamePreviewInfo = async (gameName: string, reqSite?: GameInfoSou
   const newData = structuredClone(data);
   gameInfoPreprocessData[reqSite].list!.forEach(({ gameInfo }, index) => {
     const newDataItem = newData[index];
-    newDataItem.platform = [...gameInfo.platform];
-    newDataItem.gameTypeTags = [...gameInfo.gameTypeTags];
-    newDataItem.categoryTags = [...gameInfo.categoryTags];
-    newDataItem.langTags = [...gameInfo.langTags];
-    newDataItem.storyTags = [...gameInfo.storyTags];
+    gameTagKeys.forEach(key => {
+      newDataItem[key] = [...gameInfo[key]];
+    });
     newDataItem.releaseDate = gameInfo.releaseDate;
   });
   gamePreviewInfoList[reqSite] = newData;
@@ -153,6 +145,11 @@ export const replaceCurrentGameInfoAt = <K extends keyof GameInfo>(siteName: Gam
 
   currentGameInfo[key] = structuredClone(curPreprocessData.gameInfo[key]);
   currentGameTags[field] &&= structuredClone(curPreprocessData.tags[field]);
+};
+
+export const replaceCurrentGameInfoFormRecord = (gameInfo: GameInfo, gameTags: GameTags) => {
+  Object.assign(currentGameInfo, structuredClone(gameInfo));
+  Object.assign(currentGameTags, structuredClone(gameTags));
 };
 
 export const addCurrentGameInfoTagAt = (tagType: keyof GameTags, value: string) => {

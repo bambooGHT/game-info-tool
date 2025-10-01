@@ -1,23 +1,11 @@
-import { sendTgMessage } from "@/services/telegramAPI";
-import type { GameInfo, SendRecord, ConfigData } from "@/types";
+import { deleteTgMessage, editMessage, sendTgMessage } from "@/services/telegramAPI";
+import type { GameInfo, ConfigData, GameTags } from "@/types";
+import { deleteMessageRecord, addMessageRecord, updateMessageRecord } from "./messageRecord";
 
-export const sendRecord = (() => {
-  const result: SendRecord[] = JSON.parse(localStorage.getItem("sendRecord") ?? "[]");
-  return result;
-})();
+export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, gametags: GameTags) => {
+  if (!Object.keys(gameInfo).length || (!gameInfo.images.length && !gameInfo.ids)) return;
 
-export const saveSendRecord = (data: SendRecord) => {
-  sendRecord.unshift(data);
-  if (sendRecord.length > 300) sendRecord.pop();
-  localStorage.setItem("sendRecord", JSON.stringify(sendRecord));
-};
-
-export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageIdStr: string) => {
-  if (!Object.keys(gameInfo).length || !gameInfo.images.length) return;
-
-  const messageIds = messageIdStr ? messageIdStr.split(" ").map(p => p.trim()).filter(Boolean) : undefined;
-
-  const { translateName, name,
+  const { ids, translateName, name,
     releaseDate, images,
     platform, brand,
     gameTypeTags, categoryTags,
@@ -25,11 +13,10 @@ export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageI
     orthrText = "", introduction
   } = gameInfo;
 
-  const { introHead, introFolded } = splitIntroduction(introduction);
 
   const rows = [
-    "🎮 " + translateName,
-    name,
+    translateName && "🎮" + translateName,
+    translateName ? name : "🎮" + name,
     `\n🏭开发商 #${brand}`,
     formatTags("🖥运行平台 ", platform),
     formatTags("🌐语言 ", langTags),
@@ -39,8 +26,6 @@ export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageI
     `🗓发售日期 #${releaseDate}`,
     seriesName ? `系列名 #${seriesName}` : "",
     orthrText.trim() ? `\n${orthrText}` : "",
-    introHead.length ? `\n📜 —————游戏介绍——————\n` : "",
-    ...introHead
   ].filter(Boolean).join("\n");;
 
   let downloadUrlText = gameInfo.downloadUrl?.trim() || "";
@@ -56,29 +41,34 @@ export const sendMessage = (configData: ConfigData, gameInfo: GameInfo, messageI
       }).filter(Boolean).join("\n");
     }
   }
-  console.log(rows + downloadUrlText);
+  const t1 = escapeMarkdownV2(rows);
+  const t3 = escapeMarkdownV2(downloadUrlText, ['(', ')']);
+  const { introHead, introFolded } = splitIntroduction(introduction, 970 - t1.length - t3.length);
+  const resultText = t1 + introHead + introFolded + t3;
+  console.log(resultText);
 
-  const resultText = escapeMarkdownV2(rows) + introFolded + escapeMarkdownV2(downloadUrlText, ['(', ')']);
+  if (ids) {
+    editMessage(configData, { images, message: resultText }, ids).then(() => {
+      updateMessageRecord(structuredClone(gameInfo), structuredClone(gametags));
+    });;
+    return;
+  }
 
-  sendTgMessage(configData, { images, message: resultText, messageIds }).then((res) => {
-    const ids = (Array.isArray(res) ? res : [res]).map((msg: { message_id: number; }) => msg.message_id);
-    const time = new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-').slice(0, 15);
-
-    if (messageIds) {
-      const id = messageIds.join("");
-      const index = sendRecord.findIndex(item => item.ids.join("") === id);
-      if (index !== -1) sendRecord.splice(index, 1);
-    }
-
-    saveSendRecord({ ids, translateName, name, sendTime: time });
+  sendTgMessage(configData, { images, message: resultText }).then((res) => {
+    addMessageRecord(structuredClone(gameInfo), structuredClone(gametags), Array.isArray(res) ? res : [res]);
   });
 };
 
-const splitIntroduction = (introduction: string) => {
+export const deleteMessage = async (configData: ConfigData, ids: number[]) => {
+  await deleteTgMessage(configData, ids);
+  deleteMessageRecord(ids);
+};
+
+const splitIntroduction = (introduction: string, maxLength: number) => {
   if (!introduction) {
     return { introHead: [], introFolded: "" };
   }
-  if (introduction.length > 500) introduction = introduction.slice(0, 500) + "...";
+  if (introduction.length > maxLength) introduction = introduction.slice(0, maxLength) + "...";
 
   const introLines = introduction.split("\n").map(p => p.trim());
   let introHead: string[] = [];
@@ -93,9 +83,10 @@ const splitIntroduction = (introduction: string) => {
     if (textIndex < introLines.length) introHead = introLines.splice(0, textIndex);
   }
 
+  introHead.length && introHead.unshift("\n\n📜 —————游戏介绍——————\n");
   const introFolded = introLines.length ? "\n" + foldText(escapeMarkdownV2(introLines.join("\n"))) : "";
 
-  return { introHead, introFolded, rawText: introLines.join("\n") };
+  return { introHead: escapeMarkdownV2(introHead.join("\n")), introFolded, rawText: introLines.join("\n") };
 };
 
 const formatTags = (title: string, set: Set<string>) =>
