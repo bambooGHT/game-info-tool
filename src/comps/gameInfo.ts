@@ -210,7 +210,7 @@ const infoListEl = {
 const bottomEl = {
   setup() {
     const showSettingDialog = ref(false);
-    const showSendRecordDialog = ref(false);
+    const showMessageRecordDialog = ref(false);
     const settingBox = () => {
       return h("ul", { class: "config" }, [
         h("li", [
@@ -255,7 +255,12 @@ const bottomEl = {
         h("div", { class: "title" }, `图片*${imageNumber}`),
         h("div", { class: "title" }, sendTime),
         h("button", { class: "button1", onClick: () => copyText(messageLink) }, "复制消息链接"),
-        h("button", { class: "button1", onClick: () => replaceCurrentGameInfoFormRecord(data, tags) }, "修改消息"),
+        h("button", {
+          class: "button1", onClick: () => {
+            replaceCurrentGameInfoFormRecord(data, tags),
+              showMessageRecordDialog.value = false;
+          }
+        }, "修改消息"),
         h("button", { class: "button1", onClick: () => deleteMessage(configData, messageIds) }, "删除消息"),
       ])));
     };
@@ -263,13 +268,13 @@ const bottomEl = {
     return () => [
       h("section", { class: "button-list" }, [
         h("div", [
-          h("button", { class: "button1", onClick: () => showSendRecordDialog.value = true }, "记录"),
+          h("button", { class: "button1", onClick: () => showMessageRecordDialog.value = true }, "记录"),
           h("button", { class: "button1", onClick: () => showSettingDialog.value = true }, "设置"),
           h("button", { class: "button1", onClick: () => sendMessage(configData, toRaw(currentGameInfo), toRaw(currentGameTags)) }, "发送"),
         ]),
       ]),
       showSettingDialog.value ? h(createDialog, { title: "设置", onShow: () => showSettingDialog.value = false }, settingBox) : null,
-      showSendRecordDialog.value ? h(createDialog, { title: "记录", onShow: () => showSendRecordDialog.value = false }, recordBox) : null
+      showMessageRecordDialog.value ? h(createDialog, { title: "记录", onShow: () => showMessageRecordDialog.value = false }, recordBox) : null
     ];
   }
 };
