@@ -43,10 +43,12 @@ export const editMessage = async (telegramData: TelegramData, info: sendData, id
     return;
   }
 
-  for (let i = 0; i < images.length; i++) {
-    const image = images[i];
+  for (let i = 0; i < ids.length; i++) {
     const id = ids[i];
-
+    const image = images[i];
+    if (!image) {
+      break;
+    }
     const isLocal = image.file || image.url.includes("imgProxy");
     const media: MessageParams = { type: 'photo', media: image.url, has_spoiler: image.has_spoiler };
     if (i === 0) {
