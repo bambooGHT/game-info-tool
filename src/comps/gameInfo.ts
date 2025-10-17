@@ -35,7 +35,7 @@ const imagesEl = {
 
       h("input", {
         type: "text", id: "image-url", placeholder: "image url",
-        style: "width: 240px;",
+        style: "width: 100%; max-width: 250px; flex: 1;",
         value: imageUrl.value,
         onInput: (e: any) => {
           imageUrl.value = e.target.value;

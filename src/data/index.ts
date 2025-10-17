@@ -34,7 +34,7 @@ export const currentGameInfo = reactive(structuredClone(defaultGameInfo));
 export const currentGameTags = reactive({} as GameTags);
 
 export const configData = (() => {
-  const result: ConfigData = JSON.parse(localStorage.getItem("configData") ?? `{ "botToken": "", "chatId": "", "API_Url":"" }`);
+  const result: ConfigData = JSON.parse(localStorage.getItem("configData") ?? `{ "botToken": "", "chatId": "", "API_Url": "", "dlsiteCookie": "" }`);
   if (result.API_Url || result.dlsiteCookie) {
     result.API_Url = result.API_Url.replace(/\/$/, '');
     updateApiConfig({ baseURL: result.API_Url, dlsiteCookie: result.dlsiteCookie });

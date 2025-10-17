@@ -1,8 +1,9 @@
 import type { MessageRecord, GameInfo, TgSendResult, GameTags } from "@/types";
 import { defaultGameTags, gameTagKeys } from "./defaultData";
 import { deserializeInfo, serializeInfo } from "./tools";
+import { reactive, toRaw } from "vue";
 
-export const messageRecord = (() => {
+export const messageRecord = reactive((() => {
   const result: MessageRecord[] = JSON.parse(localStorage.getItem("sendRecord") ?? "[]");
   if (result.length && !result[0].data) {
     localStorage.removeItem("sendRecord");
@@ -22,7 +23,7 @@ export const messageRecord = (() => {
   });
 
   return result;
-})();
+})());
 
 export const addMessageRecord = (data: GameInfo, tags: GameTags, tgResults: TgSendResult[]) => {
   const tgResult = tgResults[0];
@@ -34,7 +35,7 @@ export const addMessageRecord = (data: GameInfo, tags: GameTags, tgResults: TgSe
   deleteMessageRecord(ids);
   data.images = data.images.filter(p => !p.file);
   data.ids = ids;
-  messageRecord.unshift({ data: serializeInfo(data), tags: serializeInfo(tags), messageIds: ids, sendTime: time, messageLink, imageNumber });
+  messageRecord.unshift({ data, tags, messageIds: ids, sendTime: time, messageLink, imageNumber });
   saveMessageRecord();
 };
 
@@ -42,8 +43,8 @@ export const updateMessageRecord = (data: GameInfo, tags: GameTags) => {
   const item = deleteMessageRecord(data.ids!);
   if (item) {
     if (!data.images.length) data.images = item.data.images;
-    item.data = serializeInfo(data);
-    item.tags = serializeInfo(tags);
+    item.data = data;
+    item.tags = tags;
 
     messageRecord.unshift(item);
     saveMessageRecord();
@@ -58,10 +59,19 @@ export const deleteMessageRecord = (ids: number[] = []) => {
   const item = messageRecord[index];
   if (index !== -1) messageRecord.splice(index, 1);
 
+  saveMessageRecord();
   return item;
 };
 
 const saveMessageRecord = () => {
   if (messageRecord.length > 200) messageRecord.pop();
-  localStorage.setItem("sendRecord", JSON.stringify(messageRecord));
+  const list = toRaw(messageRecord).map(p => {
+    const { data, tags, ...v } = p;
+    return {
+      ...v,
+      data: serializeInfo(data),
+      tags: serializeInfo(tags)
+    };
+  });
+  localStorage.setItem("sendRecord", JSON.stringify(list));
 };
