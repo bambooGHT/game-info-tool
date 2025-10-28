@@ -6,12 +6,17 @@ type MessageParams = { type: string; media: string; caption?: string; parse_mode
 type TelegramData = Omit<ConfigData, "API_Url">;
 const TELEGRAM_API = `https://api.telegram.org/bot`;
 
+const sendError = (e: any) => {
+  console.log(e);
+  throw new Error(e);
+};
+
 export const sendTgMessage = async (telegramData: TelegramData, info: Info) => {
   if (info.images.length === 1) {
-    return sendPhoto(telegramData, info);
+    return sendPhoto(telegramData, info).catch(sendError);
   }
 
-  return sendMediaGroup(telegramData, info);
+  return sendMediaGroup(telegramData, info).catch(sendError);;
 };
 
 export const deleteTgMessage = async (telegramData: TelegramData, ids: (number | string)[]) => {
