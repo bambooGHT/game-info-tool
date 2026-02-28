@@ -3,6 +3,8 @@ import { JSDOM } from 'jsdom';
 import type { GamePreviewInfo } from "../types";
 import { DLsiteConstants } from "./constants";
 import type { RouteContext } from "@/types";
+import { writeFile } from "fs/promises";
+import { log } from "console";
 
 let dl_cookie = "";
 
@@ -37,7 +39,7 @@ const searchResult = async (url: string, depth: number = 0): Promise<Element | n
   const listTable = document.querySelector(".work_1col_table.n_worklist");
 
   if (!listTable && depth < 1) {
-    const listDOM = document.querySelectorAll(".extend_search_list_item");
+    const listDOM = document.querySelectorAll(".search_result_img_box_inner");
     const otome = listDOM?.[1]?.querySelector("span");
     return otome ? await searchResult(listDOM[1].querySelector("a")!.href, ++depth) : null;
   }
@@ -49,11 +51,11 @@ const searchGame = async (text: string): Promise<string[] | undefined> => {
   const listTable = await searchResult(generateDlsiteUrl(text));
   if (!listTable) return undefined;
 
-  const domList = [...listTable.querySelector("tbody")!.children].slice(0, 4);
-  const gameDOM = domList.find(p => p.querySelector<HTMLAnchorElement>(".work_name a")!.title.includes(text));
-  if (gameDOM) return [gameDOM.querySelector("a")!.href];
+  const domList = [...listTable.querySelector("tbody")!.children].slice(0, 4).map(p => p.querySelector<HTMLAnchorElement>(".work_name a")!);
+  const gameDOM = domList.find(p => p.title === text);
+  if (gameDOM) return [gameDOM.href];
 
-  return domList.map(p => p.querySelector("a")!.href);
+  return domList.map(p => p.href);
 };
 
 const getGameInfo = async (url: string): Promise<GamePreviewInfo> => {
@@ -101,7 +103,7 @@ const getGameInfo = async (url: string): Promise<GamePreviewInfo> => {
 
 const getImages = (els: Element[]) => {
   const result = els.map((p: Element) => {
-    const srcset = p.getAttribute("data-src")!.replace(/_\d+x\d+(?=\.\w+$)/, "");
+    const srcset = p.getAttribute("data-src")!.replace(/_\d+x\d+(?=\.\w+$)/, "").replace("jpg", "webp");
     return "https:" + srcset;
   });
 
